@@ -1,229 +1,121 @@
-# Shreya — Facebook Page Auto-Reply Bot 💜
+# Shreya — Production Facebook Page AI Messenger Bot 💜
 
-Facebook Page-এ কেউ Messenger-এ মেসেজ দিলে বা post-এ comment করলে AI (Groq) স্বয়ংক্রিয়ভাবে শ্রেয়ার স্টাইলে reply দেয়। MongoDB-তে প্রতিটা ইউজারের কথা আলাদা করে সেভ হয়, তাই AI আগের কথা মনে রাখে।
-
----
-
-## ✨ Features
-
-- 🤖 Messenger-এ auto-reply (Groq LLM)
-- 💬 Post comment-এ auto-reply
-- 🧠 প্রতিটা Facebook user-এর জন্য আলাদা conversation memory (MongoDB)
-- 🔐 API key সার্ভার সাইডে, ব্রাউজারে কখনো যায় না
-- ✅ Webhook signature verification (নিরাপত্তা)
-- 🚀 Render-এ এক ক্লিকে deploy
-- 🧪 লোকাল টেস্ট UI (`/` route)
+Shreya একটি পূর্ণাঙ্গ, প্রোডাকশন-রেডি Facebook Page AI অটো-রিপ্লাই সিস্টেম। Facebook Page-এ কেউ Messenger-এ মেসেজ দিলে বা পোস্টে কমেন্ট করলে Groq AI ব্যবহার করে বুদ্ধিমত্তার সাথে রিপ্লাই প্রদান করে। প্রতি ইউজারের আলাদা হিস্ট্রি ও নাম MongoDB-তে সংরক্ষিত থাকে।
 
 ---
 
-## 📋 যা যা লাগবে
+## ✨ প্রধান বৈশিষ্ট্যসমূহ
 
-| জিনিস | কোথায় পাবে |
-|---|---|
-| Node.js 20+ | https://nodejs.org |
-| MongoDB Atlas (free) | https://www.mongodb.com/cloud/atlas |
-| Groq API key | https://console.groq.com/keys |
-| Facebook Page (তোমার নিজের) | — |
-| Facebook Developer App | https://developers.facebook.com |
+- 🚀 **সহজ হোস্টিং (Zero Complex Config)**: রেন্ডার (Render) বা যেকোনো হোস্টিং সার্ভারে শুধু `MONGODB_URI` এনভায়রনমেন্টে দিলেই চলবে। বাকি সকল সেটিংস সরাসরি এডমিন প্যানেল থেকে সেট করা যায় এবং তা স্বয়ংক্রিয়ভাবে মঙ্গোডিবিতে পারসিস্ট হয়ে যায়।
+- 👤 **মেটা বিজনেস অটোমেশন নাম সংগ্রহ (Meta Automation Name Capture)**: পেজে কোনো ইউজার প্রথমবার মেসেজ দিলে AI সাথে সাথে কোনো রিপ্লাই দিবে না। মেটা বিজনেস স্যুট এর অটোমেশন যে মেসেজটি পাঠাবে (যেমন ইউজারের নাম), স্বয়ংক্রিয়ভাবে ওয়েববুকের মাধ্যমে সেই মেসেজটি থেকে ইউজারের ফুল নাম ডাটাব্যাসে সেভ হয়ে যাবে। এরপর ইউজারের ২য় মেসেজ থেকে এআই স্বয়ংক্রিয়ভাবে কথা বলবে।
+- 📱 **মোবাইল-বান্ধব ও প্রফেশনাল সাদা থিম এডমিন প্যানেল**:
+  - আলাদা আলাদা রাউট (`#/dashboard`, `#/chat`, `#/users`, `#/prompt`, `#/settings`, `#/test-chat`)
+  - কোনো পাসওয়ার্ড বা টোকেন ডিফল্টভাবে হার্ডকোডেড লিখে রাখা নেই
+  - প্রতিটি সিক্রেট ফিল্ডে আইকন ক্লিক করে দেখা (Show/Hide) এবং কপি করার সুবিধা
+  - রিয়েল-টাইম চ্যাট ও ইউজার প্রতি AI অন/অফ করার সুবিধা
+  - সরাসরি এডমিন প্যানেল থেকে ইউজারের নাম এডিট বা ভেরিফাই করার ব্যবস্থা
+- 🧠 **ইউজার ভিত্তিক মেমোরি (MongoDB Persistence)**: প্রতি ইউজারের কনভারসেশন মেমোরি আলাদা সংরক্ষিত থাকে।
 
 ---
 
-## 🛠️ Local Setup
+## 🚀 রেন্ডারে (Render) মাত্র ১টি ভেরিয়েবল দিয়ে হোস্ট করার নিয়ম
 
-### ১) প্রজেক্ট সেটআপ
+রেন্ডারে ডিপ্লয় করার সময় Environment Variables-এ **শুধুমাত্র `MONGODB_URI`** দিলেই হবে!
 
+### ১) GitHub-এ পুশ করুন
 ```bash
-git clone https://github.com/YOUR_USERNAME/shreya-fb-bot.git
-cd shreya-fb-bot
-npm install
-cp .env.example .env
-```
-
-### ২) MongoDB Atlas
-
-1. Free cluster (M0) বানাও
-2. Database user তৈরি করো
-3. Network Access → `0.0.0.0/0` allow
-4. Connection string কপি করে `.env`-এ বসাও, শেষে `/shreya_chat` যোগ করো
-
-### ৩) Groq key
-
-https://console.groq.com/keys → Create key → `.env`-এ `GROQ_API_KEY`-এ বসাও
-
-### ৪) Facebook App + Page Token
-
-1. https://developers.facebook.com/apps → **Create App** → **Business** টাইপ
-2. App Dashboard → **Add Product** → **Messenger** যোগ করো
-3. Messenger → Settings → **Access Tokens** → তোমার page সিলেক্ট করে **Generate Token** ক্লিক করো
-   - Permissions দরকার: `pages_messaging`, `pages_manage_metadata`, `pages_read_engagement`, `pages_manage_engagement` (comments reply-এর জন্য)
-4. টোকেন কপি করো → `.env`-এ `FB_PAGE_ACCESS_TOKEN`
-5. App → Settings → Basic → **App Secret** কপি → `.env`-এ `FB_APP_SECRET`
-6. `.env`-এ `FB_VERIFY_TOKEN` = যা খুশি একটা random string (যেমন `shreya_verify_9f8a7b6c5d`)
-
-### ৫) লোকালি চালাও
-
-```bash
-npm run dev
-```
-
-খোলো: http://localhost:3000 (টেস্ট চ্যাট UI)
-
----
-
-## 🚀 Render-এ Deploy
-
-### ১) GitHub-এ push
-
-```bash
-git init
 git add .
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/shreya-fb-bot.git
-git push -u origin main
+git commit -m "feat: simplified config & meta automation name capture"
+git push origin main
 ```
 
-> ⚠️ `.env` কখনো push করবে না — `.gitignore`-তে already আছে।
-
-### ২) Render-এ Web Service
-
-1. https://render.com → sign up with GitHub
-2. **New +** → **Web Service** → তোমার repo সিলেক্ট করো
-3. সেটিংস:
+### ২) Render-এ Web Service তৈরি করুন
+1. https://render.com এ লগইন করে **New +** → **Web Service** সিলেক্ট করুন।
+2. আপনার গিটহাব রিপোজিটরি সিলেক্ট করুন।
+3. সেটিংস দিন:
    - **Name**: `shreya-fb-bot`
-   - **Region**: Singapore
-   - **Runtime**: Node
-   - **Build**: `npm install`
-   - **Start**: `npm start`
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
    - **Plan**: Free
 
-### ৩) Environment Variables (Render Dashboard → Environment)
-
-| Key | Value |
-|---|---|
-| `MONGODB_URI` | তোমার Atlas string |
-| `GROQ_API_KEY` | তোমার Groq key |
-| `FB_PAGE_ACCESS_TOKEN` | Page token |
-| `FB_VERIFY_TOKEN` | তোমার বানানো string |
-| `FB_APP_SECRET` | App secret |
-| `MODEL` | `openai/gpt-oss-120b` |
-| `MAX_HISTORY` | `30` |
-
-### ৪) Deploy
-
-**Create Web Service** ক্লিক করো। ২-৩ মিনিটে deploy হবে। তোমার URL হবে:
+### ৩) Environment Variables
+Render-এর Environment সেকশনে শুধু একটি ভেরিয়েবল যোগ করুন:
+```env
+MONGODB_URI = mongodb+srv://<username>:<password>@cluster0.mongodb.net/shreya_chat?retryWrites=true&w=majority
 ```
-https://shreya-fb-bot.onrender.com
+*(আর কোনো ভেরিয়েবল রেন্ডারে দেওয়া বাধ্যতামূলক নয়!)*
+
+### ৪) ডিপ্লয় সম্পন্ন হলে এডমিন প্যানেলে লগইন করুন
+- অ্যাপ ইউআরএল: `https://your-app.onrender.com/`
+- ডিফল্ট এডমিন পাসওয়ার্ড: `Sakib@7890` (এডমিন প্যানেলে লগইন করার পর সেটিংস পেজ থেকে যেকোনো সময় পরিবর্তন করা যাবে)।
+- এডমিন প্যানেলের **"সিস্টেম ও এপিআই সেটিংস"** (`#/settings`) পেজে গিয়ে Facebook Page Token, App Secret, Verify Token এবং Groq API Key বসিয়ে "সকল সেটিংস সংরক্ষণ করুন" বাটনে ক্লিক করলেই সেটিংস স্থায়ীভাবে MongoDB-তে সেভ হয়ে যাবে। সার্ভার রিস্টার্ট হলেও সেটিংস অক্ষুণ্ণ থাকবে।
+
+---
+
+## 👤 মেটা বিজনেস অটোমেশন দিয়ে প্রথম মেসেজে নাম সংগ্রহের কনফিগারেশন
+
+ইউজার প্রথমবার পেজে নক দিলে AI যাতে চুপ থাকে এবং মেটা বিজনেসের পাঠানো স্বয়ংক্রিয় বার্তা থেকে ইউজারের নাম ডাটাবেসে সেভ হয়:
+
+### ১) মেটা বিজনেস স্যুট (Meta Business Suite)-এ অটোমেশন সেটআপ
+1. **business.facebook.com** এ গিয়ে আপনার পেজ নির্বাচন করুন।
+2. বাম মেনু থেকে **Inbox (ইনবক্স)** → উপরে **Automations (অটোমেশন)** এ ক্লিক করুন।
+3. **Instant Reply** বা **Greeting Message** অন করুন।
+4. মেসেজ বডিতে ইউজারের নাম সেট করুন:
+   - আপনি মেসেজ হিসেবে দিতে পারেন: `{{user_full_name}}` অথবা `{{user_first_name}} {{user_last_name}}`
+5. সেভ করুন।
+
+### ২) শ্ৰেয়া বট কীভাবে এটি প্রসেস করে
+1. কোনো ইউজার যখন পেজে প্রথমবার মেসেজ পাঠায়, শ্ৰেয়া বট ইউজারের জন্য নতুন সেশন তৈরি করে এবং প্রথম মেসেজে AI রিপ্লাই বন্ধ রাখে।
+2. মেটা বিজনেস স্যুট তাৎক্ষণিক ইউজারের নাম সহ অটোমেটিক মেসেজ পাঠায়।
+3. ফেসবুক ওয়েবহুক একটি outgoing echo মেসেজ শ্ৰেয়া বটের সার্ভারে পাঠায়।
+4. শ্ৰেয়া বট এই মেসেজটি থেকে ইউজারের নাম (`displayName`) ক্যাপচার করে MongoDB-তে সেভ করে এবং অ্যাডমিন ড্যাশবোর্ডে "নাম সেট" ব্যাজ সহ রিয়েলটাইমে আপডেট করে।
+5. এরপর ইউজার যখনই ২য় বা পরবর্তী কোনো মেসেজ দেয়, এআই (Groq) ইউজারের নাম ও আগের কনটেক্সট মনে রেখে চমৎকারভাবে উত্তর দেয়।
+*(উল্লেখ্য: এডমিন প্যানেলের সেটিংস পেজ থেকে আপনি চাইলে যেকোনো সময় এই ফিচারটি টগল করতে পারবেন।)*
+
+---
+
+## 🔗 ফেসবুক ডেভেলপার পোর্টালে Webhook কানেক্ট করার নিয়ম
+
+1. **developers.facebook.com** → আপনার অ্যাপে ঢুকুন → **Messenger** → **Settings** এ যান।
+2. **Webhooks** সেকশনে **Add Callback URL** ক্লিক করুন:
+   - **Callback URL**: `https://your-app.onrender.com/webhook`
+   - **Verify Token**: এডমিন প্যানেলের সেটিংস পেজে আপনি যে `FB_VERIFY_TOKEN` সেট করেছেন (যেমন `shreya_verify_secret_123`)।
+3. **Verify and Save** এ ক্লিক করুন।
+4. **Webhook Fields** সাবস্ক্রিপশনে নিচের ফিল্ডগুলো অন করুন:
+   - ✅ `messages`
+   - ✅ `messaging_postbacks`
+   - ✅ `message_echoes` (মেটা অটোমেশন থেকে নাম পাওয়ার জন্য)
+   - ✅ `feed` (কমেন্টে অটোরিপ্লাইয়ের জন্য)
+5. **Subscribed Pages** সেকশনে গিয়ে আপনার ফেসবুক পেজটি Subscribe করুন।
+
+---
+
+## 🛡️ এডমিন প্যানেল রুটসমূহ
+
+- `#/dashboard` — সার্বিক পরিসংখ্যান, লাইভ কানেকশন স্ট্যাটাস, সাম্প্রতিক কার্যক্রম
+- `#/chat` — পূর্ণাঙ্গ লাইভ চ্যাটবক্স, ইউজারভিত্তিক AI চালু/বন্ধের টগল, ম্যানুয়াল রিপ্লাই, নাম এডিট
+- `#/users` — সকল ইউজারের ডিরেক্টরি, মেসেজ সংখ্যা, নাম সেট স্ট্যাটাস
+- `#/prompt` — এআই বটের ব্যক্তিত্ব ও সিস্টেম প্রম্পট এডিটর
+- `#/settings` — ফেসবুক টোকেন, Groq কী, পাসওয়ার্ড ও মেটা অটোমেশন কনফিগারেশন
+- `#/test-chat` — ফেসবুক ছাড়াও সরাসরি ব্রাউজারে এআই রেসপন্স টেস্ট করার সিমুলেটর
+
+---
+
+## 💻 লোকাল ডেভেলপমেন্ট
+
+```bash
+# ১. রিপোজিটরি ক্লোন করুন
+git clone <repo-url>
+cd shreya-fb-bot
+
+# ২. প্যাকেজ ইন্সটল
+npm install
+
+# ৩. লোকাল এনভায়রনমেন্ট ফাইল
+cp .env.example .env
+
+# ৪. সার্ভার চালু করুন
+npm run dev
 ```
-
----
-
-## 🔗 Facebook Webhook কানেক্ট করা
-
-### ১) Webhook URL সেট করো
-
-1. Facebook App → **Messenger** → **Settings**
-2. **Webhooks** সেকশনে → **Add Callback URL**
-3. দাও:
-   - **Callback URL**: `https://shreya-fb-bot.onrender.com/webhook`
-   - **Verify Token**: তোমার `.env`-এ যেই `FB_VERIFY_TOKEN` দিয়েছ, হুবহু সেটাই
-4. **Verify and Save** ক্লিক করো — সব ঠিক থাকলে "verified" দেখাবে
-
-> যদি verify fail করে: Render-এ server চালু আছে কিনা, `FB_VERIFY_TOKEN` মিলছে কিনা চেক করো।
-
-### ২) Webhook Fields সাবস্ক্রাইব করো
-
-**Webhooks** এর নিচে **Add Subscriptions**:
-- ✅ `messages` (Messenger-এর জন্য অবশ্যই)
-- ✅ `messaging_postbacks` (বাটন ক্লিক)
-- ✅ `feed` (comment auto-reply চাইলে)
-
-### ৩) Page সাবস্ক্রাইব করো
-
-Messenger → Settings → **Subscribed Pages** → তোমার page সিলেক্ট করে **Subscribe** করো।
-
-### ৪) টেস্ট করো
-
-তোমার page-এ নিজের Facebook অ্যাকাউন্ট থেকে (বা অন্য কারো) একটা message পাঠাও — যেমন "কাজ করতে চাই"। কয়েক সেকেন্ডে reply আসবে।
-
----
-
-## 🔌 API Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/webhook` | Facebook verification |
-| `POST` | `/webhook` | Facebook events (messages + comments) |
-| `GET` | `/api/health` | Server status |
-| `POST` | `/api/session` | টেস্ট chat session |
-| `GET` | `/api/history/:sessionId` | টেস্ট chat history |
-| `POST` | `/api/chat` | টেস্ট chat reply |
-
----
-
-## 🗄️ MongoDB-তে কীভাবে সেভ হয়
-
-**`sessions` collection:**
-```json
-{
-  "platform": "facebook",
-  "externalId": "1234567890",          // Facebook PSID
-  "sessionId": "facebook:1234567890",
-  "displayName": "Karim",
-  "lastActive": "2026-01-01T10:00:00Z"
-}
-```
-
-**`messages` collection:**
-```json
-{
-  "sessionId": "facebook:1234567890",
-  "role": "user",
-  "content": "কাজ করতে চাই",
-  "source": "messenger",
-  "createdAt": "2026-01-01T10:00:01Z"
-}
-```
-
-প্রতিটা Facebook user-এর PSID আলাদা, তাই প্রতি ইউজারের কথা আলাদা জায়গায় সেভ হয় — একজনের কথা অন্যের কাছে যায় না।
-
----
-
-## 🐛 Troubleshooting
-
-**Webhook verify fail**
-- Render-এ app চালু আছে কিনা দেখো
-- `FB_VERIFY_TOKEN` হুবহু মিলছে কিনা
-
-**Message পাঠালে reply আসছে না**
-- Render logs দেখো (Dashboard → Logs)
-- Page Token expire হয়ে গেলে নতুন নাও
-- Page-এ app subscribe করা আছে কিনা চেক করো
-
-**"Invalid signature" error**
-- `FB_APP_SECRET` সঠিক কিনা দেখো
-
-**"HTTP 401" (Groq)**
-- Groq key revoke হয়েছে → নতুন নাও
-
-**Comment-এ reply আসছে না**
-- `feed` subscription যোগ করা আছে কিনা দেখো
-- `pages_manage_engagement` permission আছে কিনা চেক করো
-
-**Render Free plan-এ প্রথমে slow**
-- ১৫ মিনিট inactivity-তে server sleep করে। প্রথম request-এ ৩০-৬০ সেকেন্ড লাগতে পারে।
-
----
-
-## 🔒 Security
-
-- `.env` কখনো commit করবে না
-- সব token Render-এর env var-এ রাখো
-- Facebook webhook signature verification বন্ধ করো না (`FB_APP_SECRET` always set করো)
-- Production-এ rate limit যোগ করা ভালো (`express-rate-limit`)
-
----
-
-## 📜 License
-
-MIT
+ব্রাউজারে http://localhost:3000 ওপেন করুন।

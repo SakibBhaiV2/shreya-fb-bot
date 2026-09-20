@@ -1,0 +1,6 @@
+{
+  "name": "Shreya FB Bot & Admin Dashboard",
+  "description": "Facebook Messenger bot management and interactive dashboard with Sakib@7890 login, user conversation viewer, manual admin reply, per-user and global AI controls, and live prompt editor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

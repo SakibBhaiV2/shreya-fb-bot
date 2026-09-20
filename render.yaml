@@ -9,17 +9,5 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 20.11.0
-      - key: MODEL
-        value: openai/gpt-oss-120b
-      - key: MAX_HISTORY
-        value: 30
       - key: MONGODB_URI
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
-      - key: FB_PAGE_ACCESS_TOKEN
-        sync: false
-      - key: FB_VERIFY_TOKEN
-        sync: false
-      - key: FB_APP_SECRET
         sync: false

@@ -1,10 +1,29 @@
 const Groq = require("groq-sdk");
+const { getConfig } = require("./config");
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const MODEL = process.env.MODEL || "openai/gpt-oss-120b";
-const MAX_HISTORY = parseInt(process.env.MAX_HISTORY || "30", 10);
+let groqClient = null;
+let lastApiKey = null;
 
-const SYSTEM_PROMPT = `
+function getGroqClient() {
+  const apiKey = getConfig().GROQ_API_KEY || process.env.GROQ_API_KEY;
+  if (!apiKey) return null;
+  if (!groqClient || lastApiKey !== apiKey) {
+    groqClient = new Groq({ apiKey });
+    lastApiKey = apiKey;
+  }
+  return groqClient;
+}
+
+function getModel() {
+  return getConfig().MODEL || process.env.MODEL || "openai/gpt-oss-120b";
+}
+
+function getMaxHistory() {
+  const h = getConfig().MAX_HISTORY || process.env.MAX_HISTORY || "30";
+  return parseInt(h, 10);
+}
+
+const DEFAULT_SYSTEM_PROMPT = `
 তুমি শ্রেয়া। তুমি অনলাইন সার্ভিস দাও। ইউজারের সাথে বাংলা বা বাংলিশে মিষ্টি, ফ্রেন্ডলি, ক্যাজুয়াল ও ছোট রিপ্লাই দেবে।
 
 【নির্দিষ্ট ট্রিগার ও রিপ্লাই】
@@ -37,30 +56,131 @@ const SYSTEM_PROMPT = `
 রিপ্লাই ১-২ বাক্যে রাখবে। প্রযোজনে ১টা ইমোজি ব্যবহার করবে। একই কথা হুবহু বারবার রিপিট করবে না, একটু ভিন্নভাবে বলবে।
 `.trim();
 
+let currentSystemPrompt = DEFAULT_SYSTEM_PROMPT;
+let globalAiEnabled = true;
+
+function getSystemPrompt() {
+  return currentSystemPrompt;
+}
+
+function setSystemPrompt(prompt) {
+  if (typeof prompt === "string" && prompt.trim()) {
+    currentSystemPrompt = prompt.trim();
+    try {
+      const { saveConfigToDb } = require("./config");
+      saveConfigToDb({ SYSTEM_PROMPT: currentSystemPrompt });
+    } catch {}
+  }
+  return currentSystemPrompt;
+}
+
+function resetSystemPrompt() {
+  currentSystemPrompt = DEFAULT_SYSTEM_PROMPT;
+  try {
+    const { saveConfigToDb } = require("./config");
+    saveConfigToDb({ SYSTEM_PROMPT: currentSystemPrompt });
+  } catch {}
+  return currentSystemPrompt;
+}
+
+function isGlobalAiEnabled() {
+  return globalAiEnabled;
+}
+
+function setGlobalAiEnabled(enabled) {
+  globalAiEnabled = Boolean(enabled);
+  return globalAiEnabled;
+}
+
+function getRuleBasedReply(text) {
+  const t = (text || "").toLowerCase();
+  if (
+    t.includes("কাজ করতে চাই") ||
+    t.includes("কাজ করবো") ||
+    t.includes("কাজ লাগবে") ||
+    t.includes("কাজ করবা") ||
+    t.includes("কাজ করতে চাও")
+  ) {
+    return "কাজ করতে চাইলে টেলিগ্রামে মেসেজ দিন: https://t.me/ShreyaGhosh69";
+  }
+  if (
+    t.includes("সার্ভিস নিতে চাই") ||
+    t.includes("সার্ভিস লাগবে") ||
+    t.includes("সার্ভিস দাও") ||
+    t.includes("সার্ভিস নিতে চাও")
+  ) {
+    return "সার্ভিস নিতে চাইলে টেলিগ্রামে মেসেজ দিন: https://t.me/ShreyaGhosh69";
+  }
+  if (
+    t.includes("স্যাম্পল") ||
+    t.includes("ডেমো")
+  ) {
+    return "কাজের আগে ১ মিনিটের স্যাম্পল দেখানো হবে, তারপর পেমেন্ট করে কাজ করতে হবে।";
+  }
+  if (
+    t.includes("রেট") ||
+    t.includes("ডিটেইলস") ||
+    t.includes("কীভাবে কাজ হবে")
+  ) {
+    return "টেলিগ্রামে মেসেজ দাও: https://t.me/ShreyaGhosh69";
+  }
+  return null;
+}
+
 /**
  * history: [{ role: "user" | "assistant", content: string }, ...]
  * (সর্বশেষ মেসেজ সহ)
  */
 async function generateReply(history) {
-  const trimmed = history.slice(-MAX_HISTORY);
+  const lastMsg = history[history.length - 1]?.content || "";
+  const ruleReply = getRuleBasedReply(lastMsg);
+  if (ruleReply) {
+    return ruleReply;
+  }
 
-  const messages = [
-    { role: "system", content: SYSTEM_PROMPT },
-    ...trimmed.map((m) => ({ role: m.role, content: m.content })),
-  ];
+  const groq = getGroqClient();
+  if (!groq) {
+    return "হ্যালো! আমি শ্রেয়া 💜 কিভাবে সাহায্য করতে পারি? (নোট: সম্পূর্ণ AI উত্তরের জন্য Settings-এ GROQ_API_KEY সেট করুন)";
+  }
 
-  const completion = await groq.chat.completions.create({
-    model: MODEL,
-    messages,
-    temperature: 0.6,
-    max_tokens: 400,
-  });
+  try {
+    const maxHist = getMaxHistory();
+    const model = getModel();
+    const trimmed = history.slice(-maxHist);
 
-  const reply =
-    (completion.choices?.[0]?.message?.content || "").trim() ||
-    "একটু সমস্যা হয়েছে 😔 আবার বলুন।";
+    const messages = [
+      { role: "system", content: currentSystemPrompt },
+      ...trimmed.map((m) => ({ role: m.role, content: m.content })),
+    ];
 
-  return reply;
+    const completion = await groq.chat.completions.create({
+      model,
+      messages,
+      temperature: 0.6,
+      max_tokens: 400,
+    });
+
+    const reply =
+      (completion.choices?.[0]?.message?.content || "").trim() ||
+      "একটু সমস্যা হয়েছে 😔 আবার বলুন।";
+
+    return reply;
+  } catch (err) {
+    console.error("Groq API error:", err?.message || err);
+    if (err?.message && (err.message.includes("Invalid API Key") || err.message.includes("401"))) {
+      return "হ্যালো! আমি শ্রেয়া 💜 (নোট: প্রদত্ত GROQ_API_KEY ভ্যালিড নয়, অনুগ্রহ করে Settings থেকে সঠিক কী সেট করুন। সার্ভিস সংক্রান্ত আলোচনার জন্য টেলিগ্রামে মেসেজ দিন: https://t.me/ShreyaGhosh69)";
+    }
+    return "একটু সমস্যা হয়েছে 😔 টেলিগ্রামে মেসেজ দিন: https://t.me/ShreyaGhosh69";
+  }
 }
 
-module.exports = { generateReply, SYSTEM_PROMPT };
+module.exports = {
+  generateReply,
+  SYSTEM_PROMPT: currentSystemPrompt,
+  DEFAULT_SYSTEM_PROMPT,
+  getSystemPrompt,
+  setSystemPrompt,
+  resetSystemPrompt,
+  isGlobalAiEnabled,
+  setGlobalAiEnabled,
+};

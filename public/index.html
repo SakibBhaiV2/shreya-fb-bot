@@ -1,306 +1,2212 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="bn" class="h-full bg-slate-50">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Shreya — Test Chat</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: linear-gradient(135deg, #1e1b4b, #4c1d95, #831843);
-    min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    padding: 16px;
-  }
-  .chat-box {
-    width: 100%; max-width: 480px;
-    height: 90vh; max-height: 720px;
-    background: #0f0f1a;
-    border-radius: 20px;
-    display: flex; flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,.6);
-    border: 1px solid rgba(255,255,255,.08);
-  }
-  .header {
-    padding: 14px 18px;
-    background: linear-gradient(90deg, #7c3aed, #db2777);
-    display: flex; align-items: center; gap: 12px; color: #fff;
-  }
-  .avatar {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: #fff2; display: flex; align-items: center; justify-content: center;
-    font-size: 20px; border: 2px solid rgba(255,255,255,.5);
-  }
-  .header .info { flex: 1; }
-  .header h2 { font-size: 16px; font-weight: 600; }
-  .header p { font-size: 12px; opacity: .85; display: flex; align-items: center; gap: 5px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; }
-  .new-btn {
-    background: rgba(255,255,255,.2);
-    border: 1px solid rgba(255,255,255,.35);
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  .new-btn:hover { background: rgba(255,255,255,.3); }
-
-  .messages {
-    flex: 1; overflow-y: auto; padding: 18px;
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .messages::-webkit-scrollbar { width: 6px; }
-  .messages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-
-  .msg {
-    max-width: 82%;
-    padding: 10px 14px;
-    border-radius: 16px;
-    font-size: 14.5px;
-    line-height: 1.5;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    animation: pop .2s ease;
-  }
-  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .msg.bot { align-self: flex-start; background: #1f1f2e; color: #e8e8f0; border-bottom-left-radius: 4px; }
-  .msg.user { align-self: flex-end; background: linear-gradient(135deg, #7c3aed, #db2777); color: #fff; border-bottom-right-radius: 4px; }
-  .msg.error { align-self: flex-start; background: #3a1010; color: #ffb4b4; border: 1px solid #661d1d; border-bottom-left-radius: 4px; font-size: 13px; }
-  .msg a { color: #a78bfa; }
-
-  .typing {
-    align-self: flex-start; background: #1f1f2e;
-    padding: 12px 16px; border-radius: 16px;
-    border-bottom-left-radius: 4px;
-    display: flex; gap: 5px;
-  }
-  .typing span { width: 7px; height: 7px; border-radius: 50%; background: #888; animation: bounce 1.2s infinite; }
-  .typing span:nth-child(2) { animation-delay: .2s; }
-  .typing span:nth-child(3) { animation-delay: .4s; }
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: .5; }
-    30% { transform: translateY(-6px); opacity: 1; }
-  }
-
-  .input-area {
-    display: flex; gap: 8px; padding: 12px;
-    background: #16161f; border-top: 1px solid rgba(255,255,255,.06);
-  }
-  .input-area input {
-    flex: 1; background: #0f0f1a; border: 1px solid #2a2a3a;
-    color: #fff; padding: 12px 16px; border-radius: 24px;
-    font-size: 14.5px; outline: none;
-    transition: .2s;
-  }
-  .input-area input:focus { border-color: #7c3aed; }
-  .input-area button {
-    width: 46px; height: 46px; border: none; border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #db2777);
-    color: #fff; cursor: pointer; font-size: 18px;
-    display: flex; align-items: center; justify-content: center;
-    transition: .2s;
-  }
-  .input-area button:hover:not(:disabled) { transform: scale(1.06); }
-  .input-area button:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shreya FB Bot & Admin Dashboard</title>
+  <meta name="description" content="Professional Facebook Messenger Bot & AI Admin Dashboard with live WebSockets, prompt manager, and settings." />
+  <meta property="og:title" content="Shreya FB Bot & Admin Dashboard" />
+  <meta property="og:description" content="Professional Facebook Messenger Bot & AI Admin Dashboard with live WebSockets, prompt manager, and settings." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Hind Siliguri"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
 </head>
-<body>
+<body class="h-full text-slate-800 bg-slate-50 antialiased flex flex-col">
 
-<div class="chat-box">
-  <div class="header">
-    <div class="avatar">💜</div>
-    <div class="info">
-      <h2>Shreya</h2>
-      <p><span class="dot"></span> Online (Test Mode)</p>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================================================== -->
+  <!-- 1. LOGIN SCREEN (Clean, Professional White Architecture) -->
+  <!-- ==================================================== -->
+  <div id="login-view" class="fixed inset-0 z-40 flex items-center justify-center bg-slate-100/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-xl p-8 space-y-6">
+      <div class="text-center space-y-2">
+        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 mb-2">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 tracking-tight">শ্রেয়া এডমিন পোর্টাল</h1>
+        <p class="text-sm text-slate-500">প্রবেশের জন্য এডমিন পাসওয়ার্ড প্রদান করুন</p>
+      </div>
+
+      <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider">পাসওয়ার্ড (Password)</label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="login-password" 
+              required
+              placeholder="পাসওয়ার্ড লিখুন" 
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white text-sm transition"
+            />
+            <button 
+              type="button" 
+              onclick="togglePasswordVisibility()" 
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+            >
+              <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="login-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium"></div>
+
+        <button 
+          type="submit" 
+          id="login-btn"
+          class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2"
+        >
+          <span>লগইন করুন</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+      </form>
+
+      <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+        <span>Facebook Bot & Groq Engine</span>
+        <span>v2.1 Enterprise</span>
+      </div>
     </div>
-    <button class="new-btn" id="newChat" title="নতুন চ্যাট">+ New</button>
   </div>
 
-  <div class="messages" id="messages"></div>
+  <!-- ==================================================== -->
+  <!-- 2. MAIN APPLICATION (Left Sidebar + Separate Sub-pages) -->
+  <!-- ==================================================== -->
+  <div id="app-layout" class="hidden h-full flex overflow-hidden relative">
+    
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebar-backdrop" onclick="closeMobileSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-40 hidden md:hidden transition-opacity duration-300"></div>
 
-  <div class="input-area">
-    <input id="input" type="text" placeholder="মেসেজ লিখুন..." autocomplete="off" />
-    <button id="send" type="button">➤</button>
+    <!-- LEFT SIDEBAR (Slide-over on mobile, static on desktop) -->
+    <aside id="main-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 flex flex-col shrink-0 select-none transform -translate-x-full transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:w-64">
+      
+      <!-- Brand / Logo Area -->
+      <div class="h-16 border-b border-slate-200 px-5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+            S
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 text-sm leading-tight">শ্রেয়া এডমিন</div>
+            <div class="text-[11px] text-slate-400 font-medium">Messenger & AI Bot</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="ws-indicator" class="flex h-2.5 w-2.5 relative" title="WebSocket কানেক্টেড">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <button type="button" onclick="closeMobileSidebar()" class="md:hidden p-1.5 -mr-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100" aria-label="মেনু বন্ধ করুন">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Links (Separate Routes) -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        
+        <a href="#/dashboard" data-route="/dashboard" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+          </svg>
+          <span>ড্যাশবোর্ড</span>
+        </a>
+
+        <a href="#/chat" data-route="/chat" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <div class="flex-1 flex items-center justify-between">
+            <span>লাইভ চ্যাট</span>
+            <span id="unread-count" class="hidden text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">0</span>
+          </div>
+        </a>
+
+        <a href="#/users" data-route="/users" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <span>ইউজার তালিকা</span>
+        </a>
+
+        <a href="#/ai-config" data-route="/ai-config" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <span>এআই বট প্রম্পট</span>
+        </a>
+
+        <a href="#/settings" data-route="/settings" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>সিস্টেম সেটিংস</span>
+        </a>
+
+        <a href="#/test-chat" data-route="/test-chat" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+          <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+          </svg>
+          <span>লাইভ টেস্ট সিমুলেটর</span>
+        </a>
+
+      </nav>
+
+      <!-- Global AI Quick Toggle & Logout in Sidebar Footer -->
+      <div class="p-3 border-t border-slate-200 space-y-3 bg-slate-50/50">
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200">
+          <div>
+            <div class="text-xs font-semibold text-slate-800">গ্লোবাল AI রিপ্লাই</div>
+            <div id="global-ai-status-text" class="text-[11px] text-emerald-600 font-medium">সক্রিয় আছে</div>
+          </div>
+          <button 
+            type="button" 
+            id="sidebar-global-ai-toggle"
+            onclick="toggleGlobalAi()"
+            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-emerald-500 transition-colors duration-200 ease-in-out focus:outline-none"
+          >
+            <span id="global-ai-thumb" class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+          </button>
+        </div>
+
+        <button 
+          onclick="handleLogout()"
+          class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          <span>লগআউট করুন</span>
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT AREA -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50 overflow-hidden">
+      
+      <!-- Top Bar Header -->
+      <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <button id="mobile-menu-btn" type="button" onclick="openMobileSidebar()" class="md:hidden p-2 -ml-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none" aria-label="মেনু খুলুন">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+          <div>
+            <h2 id="top-title" class="text-sm sm:text-base font-bold text-slate-900 leading-tight">ড্যাশবোর্ড ওভারভিউ</h2>
+            <p id="top-subtitle" class="text-[11px] sm:text-xs text-slate-500 line-clamp-1">বটের রিয়েল-টাইম মেট্রিকস ও কার্যকলাপ</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-[11px] sm:text-xs font-medium text-slate-600">
+            <span id="ws-badge-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="ws-badge-text" class="hidden sm:inline">WebSocket লাইভ</span>
+          </div>
+          <a href="#/test-chat" class="px-2.5 sm:px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg border border-indigo-200/60 transition flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="hidden sm:inline">টেস্ট সিমুলেটর</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- PAGE VIEWS CONTAINER -->
+      <div class="flex-1 overflow-y-auto p-3 sm:p-6">
+
+        <!-- ============================================ -->
+        <!-- VIEW 1: DASHBOARD OVERVIEW (#/dashboard) -->
+        <!-- ============================================ -->
+        <section id="view-dashboard" class="page-view space-y-6">
+          
+          <!-- Key Metrics Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">মোট ইউজার</span>
+                <div class="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                </div>
+              </div>
+              <div id="stat-total-users" class="text-2xl font-bold text-slate-900">0</div>
+              <div class="mt-1 text-xs text-slate-400">সকল প্ল্যাটফর্ম মিলিয়ে</div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">সক্রিয় ইউজার (24h)</span>
+                <div class="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+              </div>
+              <div id="stat-active-users" class="text-2xl font-bold text-slate-900">0</div>
+              <div class="mt-1 text-xs text-emerald-600 font-medium">রিয়েল-টাইম কানেক্টেড</div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">ফেসবুক মেসেঞ্জার</span>
+                <div class="p-2 rounded-xl bg-blue-50 text-blue-600">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.914 1.455 5.518 3.735 7.208V22l3.37-1.85c.91.25 1.878.388 2.895.388 5.523 0 10-4.145 10-9.28C22 6.145 17.523 2 12 2zm1.066 12.445l-2.548-2.718-4.972 2.718 5.466-5.801 2.612 2.718 4.908-2.718-5.466 5.801z"/>
+                  </svg>
+                </div>
+              </div>
+              <div id="stat-fb-users" class="text-2xl font-bold text-slate-900">0</div>
+              <div class="mt-1 text-xs text-slate-400">ফেসবুক পেজ ইনবক্স</div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wider">মোট মেসেজ</span>
+                <div class="p-2 rounded-xl bg-purple-50 text-purple-600">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                  </svg>
+                </div>
+              </div>
+              <div id="stat-total-messages" class="text-2xl font-bold text-slate-900">0</div>
+              <div class="mt-1 text-xs text-slate-400">বট ও ইউজারের বার্তা</div>
+            </div>
+
+          </div>
+
+          <!-- Live Activity & Quick Actions -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Recent Users / Activity Feed -->
+            <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm">সাম্প্রতিক কার্যকলাপ (Live Feed)</h3>
+                  <p class="text-xs text-slate-500">ইউজারদের সর্বশেষ কথোপকথন ও মেসেজ</p>
+                </div>
+                <a href="#/chat" class="text-xs font-semibold text-indigo-600 hover:text-indigo-700">সকল চ্যাট দেখুন &rarr;</a>
+              </div>
+              <div id="dashboard-recent-users" class="divide-y divide-slate-100">
+                <div class="py-8 text-center text-xs text-slate-400">লোড হচ্ছে...</div>
+              </div>
+            </div>
+
+            <!-- Bot Status Card -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <h3 class="font-bold text-slate-900 text-sm">সিস্টেম স্ট্যাটাস ও তথ্য</h3>
+              
+              <div class="space-y-3 text-xs">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-medium text-slate-600">ফেসবুক টোকেন</span>
+                  <span id="dash-fb-status" class="px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200">চেক হচ্ছে...</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-medium text-slate-600">Groq AI API</span>
+                  <span id="dash-groq-status" class="px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200">চেক হচ্ছে...</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-medium text-slate-600">ডাটাবেজ স্টোরেজ</span>
+                  <span class="px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">একটিভ (Auto-Sync)</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span class="font-medium text-slate-600">ওয়েবসকেট ব্রডকাস্ট</span>
+                  <span class="px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">রিয়েলটাইম (0s বিলম্ব)</span>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-slate-100">
+                <a href="#/settings" class="w-full block text-center py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition">
+                  কনফিগারেশন ও টোকেন সেটিংস &rarr;
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 2: LIVE CHAT & CONVERSATIONS (#/chat) -->
+        <!-- ============================================ -->
+        <section id="view-chat" class="page-view hidden h-[calc(100vh-8rem)] flex bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+          
+          <!-- Users Column (Left pane inside Chat, full width on mobile) -->
+          <div id="chat-users-col" class="w-full md:w-80 border-r border-slate-200 flex flex-col shrink-0 bg-slate-50/50">
+            <div class="p-3 border-b border-slate-200">
+              <input 
+                type="text" 
+                id="chat-search-input" 
+                placeholder="ইউজার খুঁজুন (নাম / আইডি)..." 
+                oninput="handleUserSearch(this.value)"
+                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+              />
+            </div>
+            <div id="chat-user-list" class="flex-1 overflow-y-auto divide-y divide-slate-100">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Active Conversation Pane (Right pane, slide/switch on mobile) -->
+          <div id="conversation-pane" class="hidden md:flex flex-1 flex-col bg-white">
+            
+            <!-- Conversation Header -->
+            <div id="conv-header" class="h-16 px-4 sm:px-6 border-b border-slate-200 flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <!-- Mobile back to user list button -->
+                <button type="button" onclick="backToUserListMobile()" class="md:hidden p-1.5 -ml-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition shrink-0" title="ইউজার তালিকায় ফিরুন">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+                <div id="conv-avatar" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0">
+                  ?
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span id="conv-name" class="font-bold text-slate-900 text-xs sm:text-sm truncate">ইউজার নির্বাচন করুন</span>
+                    <button type="button" id="conv-edit-name-btn" onclick="promptEditUserName()" class="hidden text-slate-400 hover:text-indigo-600 p-0.5 rounded transition" title="ইউজারের নাম পরিবর্তন করুন">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                      </svg>
+                    </button>
+                    <span id="conv-platform-badge" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-md"></span>
+                  </div>
+                  <div id="conv-sub" class="text-[11px] sm:text-xs text-slate-400 truncate">বাম দিক থেকে কোনো ইউজারে ক্লিক করুন</div>
+                </div>
+              </div>
+
+              <!-- Per-User AI Toggle -->
+              <div id="user-ai-control" class="hidden flex items-center gap-2 sm:gap-3 bg-slate-50 border border-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl shrink-0">
+                <div class="text-right">
+                  <div class="text-[11px] sm:text-xs font-semibold text-slate-800">AI রিপ্লাই</div>
+                  <div id="user-ai-status-label" class="text-[10px] text-emerald-600 font-medium">চালু আছে</div>
+                </div>
+                <button 
+                  type="button" 
+                  id="user-ai-toggle-btn"
+                  onclick="toggleActiveUserAi()"
+                  class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-emerald-500 transition-colors duration-200 ease-in-out focus:outline-none"
+                >
+                  <span id="user-ai-thumb" class="translate-x-4 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Messages Stream Area -->
+            <div id="messages-container" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/40">
+              <div class="h-full flex flex-col items-center justify-center text-slate-400 text-xs">
+                <svg class="w-12 h-12 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span>কোনো ইউজার সিলেক্ট করা হয়নি</span>
+              </div>
+            </div>
+
+            <!-- Manual Message Input Bar -->
+            <div id="message-input-bar" class="p-4 border-t border-slate-200 bg-white">
+              <form onsubmit="handleSendAdminReply(event)" class="flex items-center gap-3">
+                <input 
+                  type="text" 
+                  id="admin-reply-input"
+                  placeholder="ইউজারকে ম্যানুয়াল মেসেজ দিন..." 
+                  autocomplete="off"
+                  disabled
+                  class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition disabled:bg-slate-100 disabled:cursor-not-allowed"
+                />
+                <button 
+                  type="submit" 
+                  id="admin-send-btn"
+                  disabled
+                  class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed flex items-center gap-1.5"
+                >
+                  <span>পাঠান</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 3: USERS MANAGEMENT (#/users) -->
+        <!-- ============================================ -->
+        <section id="view-users" class="page-view hidden space-y-4">
+          
+          <!-- Users Filter & Search Header -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <button onclick="filterUsers('all')" class="user-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/70" data-filter="all">সকল ইউজার</button>
+              <button onclick="filterUsers('facebook')" class="user-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100" data-filter="facebook">ফেসবুক</button>
+              <button onclick="filterUsers('web')" class="user-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100" data-filter="web">ওয়েব চ্যাট</button>
+            </div>
+
+            <div class="w-full sm:w-72">
+              <input 
+                type="text" 
+                placeholder="ইউজার বা আইডি খুঁজুন..." 
+                oninput="handleUserDirectorySearch(this.value)"
+                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+              />
+            </div>
+          </div>
+
+          <!-- Users Table -->
+          <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50/75 border-b border-slate-200 text-slate-500 uppercase font-semibold">
+                  <tr>
+                    <th class="px-6 py-3.5">ইউজার / প্ল্যাটফর্ম</th>
+                    <th class="px-6 py-3.5">সর্বশেষ মেসেজ</th>
+                    <th class="px-6 py-3.5">মেসেজ সংখ্যা</th>
+                    <th class="px-6 py-3.5">সর্বশেষ সক্রিয়</th>
+                    <th class="px-6 py-3.5">AI স্ট্যাটাস</th>
+                    <th class="px-6 py-3.5 text-right">অ্যাকশন</th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body" class="divide-y divide-slate-100 font-normal">
+                  <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-slate-400">ইউজার লোড হচ্ছে...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 4: AI PROMPT & CONFIG (#/ai-config) -->
+        <!-- ============================================ -->
+        <section id="view-ai-config" class="page-view hidden space-y-6 max-w-4xl">
+          
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">শ্রেয়া এআই সিস্টেম প্রম্পট এডিটর</h3>
+                <p class="text-xs text-slate-500">বট কিভাবে কথা বলবে, গ্রাহকদের কোন লিংক বা রিপ্লাই দেবে তা এখান থেকে নির্ধারণ করুন</p>
+              </div>
+              <button 
+                onclick="resetPromptToDefault()"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-xs font-semibold transition"
+              >
+                ডিফল্ট প্রম্পটে রিসেট
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs font-semibold text-slate-700 uppercase tracking-wider">সিস্টেম প্রম্পট নির্দেশনা</label>
+              <textarea 
+                id="system-prompt-input" 
+                rows="16" 
+                class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-xs font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition"
+              ></textarea>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+              <span class="text-xs text-slate-400">সংরক্ষণ করার সাথে সাথে নতুন কথপোকথনে কার্যকর হবে</span>
+              <button 
+                onclick="saveSystemPrompt()" 
+                id="save-prompt-btn"
+                class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-2"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>প্রম্পট সংরক্ষণ করুন</span>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 5: SYSTEM & API SETTINGS (#/settings) -->
+        <!-- ============================================ -->
+        <section id="view-settings" class="page-view hidden space-y-6 max-w-4xl">
+          
+          <!-- Webhook URL Quick Copy Card -->
+          <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-indigo-900 font-bold text-sm">
+                <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.914 1.455 5.518 3.735 7.208V22l3.37-1.85c.91.25 1.878.388 2.895.388 5.523 0 10-4.145 10-9.28C22 6.145 17.523 2 12 2z"/>
+                </svg>
+                <span>Facebook Developer Webhook কনফিগারেশন</span>
+              </div>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 font-semibold">Callback Setup</span>
+            </div>
+            <p class="text-xs text-indigo-700/80">ফেসবুক ডেভেলপার ড্যাশবোর্ডে (developers.facebook.com) আপনার অ্যাপের Webhook সেকশনে নিচের Callback URL ও Verify Token প্রদান করুন:</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+              <div class="bg-white p-3 rounded-xl border border-indigo-200/60 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400">Callback URL</div>
+                  <div id="live-webhook-url" class="text-xs font-mono font-medium text-slate-800 break-all select-all">https://.../webhook</div>
+                </div>
+                <button onclick="copyToClipboard('live-webhook-url')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg text-xs" title="কপি করুন">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="bg-white p-3 rounded-xl border border-indigo-200/60 flex items-center justify-between">
+                <div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400">Verify Token</div>
+                  <div id="live-verify-token-display" class="text-xs font-mono font-medium text-slate-800 select-all">...</div>
+                </div>
+                <button onclick="copyVerifyToken()" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg text-xs" title="কপি করুন">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- All Settings Form Card -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm space-y-6">
+            <div class="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">সিস্টেম ও এপিআই সেটিংস</h3>
+                <p class="text-xs text-slate-500">ফেসবুক পেজ টোকেন, ভেরিফাই টোকেন, অ্যাপ সিক্রেট এবং Groq AI কনফিগারেশন</p>
+              </div>
+              <button 
+                type="button" 
+                onclick="toggleAllSettingsVisibility()" 
+                id="toggle-all-secrets-btn" 
+                class="self-start sm:self-auto px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition flex items-center gap-1.5"
+              >
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <span id="toggle-all-text">পাসওয়ার্ড হাইড/শো টগল</span>
+              </button>
+            </div>
+
+            <form id="system-settings-form" onsubmit="saveSystemSettings(event)" class="space-y-5">
+              
+              <!-- Facebook Section -->
+              <div class="space-y-4">
+                <h4 class="text-xs font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>ফেসবুক সেটিংস (Facebook Integration)</span>
+                </h4>
+
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold text-slate-700">Facebook Page Access Token (FB_PAGE_ACCESS_TOKEN)</label>
+                    <button type="button" onclick="testConnection('facebook')" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">কানেকশন টেস্ট করুন</button>
+                  </div>
+                  <div class="relative flex items-center">
+                    <input 
+                      type="text" 
+                      id="cfg-fb-page-token"
+                      placeholder="EAA..."
+                      class="w-full pr-20 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                    />
+                    <div class="absolute right-2 flex items-center gap-1">
+                      <button type="button" onclick="copyInputVal('cfg-fb-page-token')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="টোকেন কপি করুন">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                      </button>
+                      <button type="button" onclick="toggleFieldVisibility('cfg-fb-page-token', 'eye-fb-token')" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg" title="লুকান / দেখুন">
+                        <svg id="eye-fb-token" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="text-[11px] text-slate-400">ফেসবুক পেজ থেকে ইনবক্স মেসেজ পাঠানোর জন্য পেজ অ্যাক্সেস টোকেন</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-700">Webhook Verify Token (FB_VERIFY_TOKEN)</label>
+                    <div class="relative flex items-center">
+                      <input 
+                        type="text" 
+                        id="cfg-fb-verify-token"
+                        placeholder="e.g. shreya_verify_secret_123"
+                        class="w-full pr-20 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                      />
+                      <div class="absolute right-2 flex items-center gap-1">
+                        <button type="button" onclick="copyInputVal('cfg-fb-verify-token')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="কপি করুন">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                        </button>
+                        <button type="button" onclick="toggleFieldVisibility('cfg-fb-verify-token', 'eye-fb-verify')" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg" title="লুকান / দেখুন">
+                          <svg id="eye-fb-verify" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-700">Facebook App Secret (FB_APP_SECRET)</label>
+                    <div class="relative flex items-center">
+                      <input 
+                        type="text" 
+                        id="cfg-fb-app-secret"
+                        placeholder="App Secret"
+                        class="w-full pr-20 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                      />
+                      <div class="absolute right-2 flex items-center gap-1">
+                        <button type="button" onclick="copyInputVal('cfg-fb-app-secret')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="কপি করুন">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                        </button>
+                        <button type="button" onclick="toggleFieldVisibility('cfg-fb-app-secret', 'eye-fb-secret')" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg" title="লুকান / দেখুন">
+                          <svg id="eye-fb-secret" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Engine Section -->
+              <div class="space-y-4 pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>এআই ইঞ্জিন সেটিংস (Groq AI Integration)</span>
+                </h4>
+
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <label class="text-xs font-semibold text-slate-700">Groq API Key (GROQ_API_KEY)</label>
+                    <button type="button" onclick="testConnection('groq')" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Groq API টেস্ট করুন</button>
+                  </div>
+                  <div class="relative flex items-center">
+                    <input 
+                      type="text" 
+                      id="cfg-groq-api-key"
+                      placeholder="gsk_..."
+                      class="w-full pr-20 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                    />
+                    <div class="absolute right-2 flex items-center gap-1">
+                      <button type="button" onclick="copyInputVal('cfg-groq-api-key')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="API Key কপি করুন">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                      </button>
+                      <button type="button" onclick="toggleFieldVisibility('cfg-groq-api-key', 'eye-groq-key')" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg" title="লুকান / দেখুন">
+                        <svg id="eye-groq-key" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <p class="text-[11px] text-slate-400">Groq ক্লাউড কনসোল থেকে প্রাপ্ত API Key</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-700">AI মডেল (MODEL)</label>
+                    <select 
+                      id="cfg-model"
+                      class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                    >
+                      <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (দ্রুত ও নিখুঁত)</option>
+                      <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
+                      <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (আল্ট্রা ফাস্ট)</option>
+                      <option value="mixtral-8x7b-32768">mixtral-8x7b-32768</option>
+                    </select>
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-700">ম্যাক্স হিস্ট্রি মেসেজ (MAX_HISTORY)</label>
+                    <input 
+                      type="number" 
+                      id="cfg-max-history"
+                      value="30"
+                      class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Meta Automation & First Message Behavior Section -->
+              <div class="space-y-4 pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                  <span>মেটা বিজনেস অটোমেশন ও ইউজার নাম সংগ্রহ (Name Capture)</span>
+                </h4>
+
+                <div class="p-4 rounded-xl bg-indigo-50/70 border border-indigo-100/80 flex items-start justify-between gap-4">
+                  <div class="space-y-1">
+                    <div class="text-xs font-bold text-slate-900">প্রথম মেসেজে এআই বন্ধ রেখে মেটা অটোমেশন থেকে নাম সংগ্রহ</div>
+                    <p class="text-[11px] text-slate-600 leading-relaxed">
+                      ইউজার পেজে প্রথমবার মেসেজ দিলে এআই তাৎক্ষণিক কোনো রিপ্লাই পাঠাবে না। মেটা বিজনেস স্যুট-এ সেট করা অটোমেশনের পাঠানো মেসেজ থেকে ইউজারের পূর্ণ নাম স্বয়ংক্রিয়ভাবে ডাটাবেসে সেভ হবে। এরপর ইউজারের ২য় মেসেজ থেকে এআই সাধারণ নিয়মে কথা বলবে।
+                    </p>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-0.5">
+                    <input type="checkbox" id="cfg-first-msg-ai" class="sr-only peer" checked>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Admin Credentials Section -->
+              <div class="space-y-4 pt-4 border-t border-slate-100">
+                <h4 class="text-xs font-bold text-indigo-700 uppercase tracking-wider">এডমিন সিকিউরিটি ও ডাটাবেজ</h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-700">এডমিন লগইন পাসওয়ার্ড (ADMIN_PASSWORD)</label>
+                    <div class="relative flex items-center">
+                      <input 
+                        type="text" 
+                        id="cfg-admin-password"
+                        placeholder="পাসওয়ার্ড"
+                        class="w-full pr-20 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                      />
+                      <div class="absolute right-2 flex items-center gap-1">
+                        <button type="button" onclick="copyInputVal('cfg-admin-password')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="কপি করুন">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                        </button>
+                        <button type="button" onclick="toggleFieldVisibility('cfg-admin-password', 'eye-admin-password')" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg" title="লুকান / দেখুন">
+                          <svg id="eye-admin-password" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-700">MongoDB URI (MONGODB_URI) - ঐচ্ছিক</label>
+                    <div class="relative flex items-center">
+                      <input 
+                        type="text" 
+                        id="cfg-mongodb-uri"
+                        placeholder="mongodb+srv://..."
+                        class="w-full pr-20 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                      />
+                      <div class="absolute right-2 flex items-center gap-1">
+                        <button type="button" onclick="copyInputVal('cfg-mongodb-uri')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded-lg" title="কপি করুন">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                          </svg>
+                        </button>
+                        <button type="button" onclick="toggleFieldVisibility('cfg-mongodb-uri', 'eye-mongo-uri')" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg" title="লুকান / দেখুন">
+                          <svg id="eye-mongo-uri" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                <button 
+                  type="submit" 
+                  id="save-settings-btn"
+                  class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center justify-center gap-2"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  <span>সকল সেটিংস সংরক্ষণ করুন</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+
+        </section>
+
+        <!-- ============================================ -->
+        <!-- VIEW 6: LIVE TEST SIMULATOR (#/test-chat) -->
+        <!-- ============================================ -->
+        <section id="view-test-chat" class="page-view hidden space-y-4 max-w-2xl mx-auto">
+          
+          <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-10rem)]">
+            
+            <div class="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                  S
+                </div>
+                <div>
+                  <div class="font-bold text-slate-900 text-xs leading-tight">শ্রেয়া চ্যাট সিমুলেটর</div>
+                  <div class="text-[10px] text-slate-400">এআই বট রেসপন্স টেস্ট করুন</div>
+                </div>
+              </div>
+              <button onclick="resetSimulatorSession()" class="text-xs text-slate-500 hover:text-slate-800 font-medium px-2.5 py-1 rounded-lg border border-slate-200 bg-white">নতুন সেশন</button>
+            </div>
+
+            <!-- Simulator message body -->
+            <div id="sim-messages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50/30">
+              <div class="flex justify-start">
+                <div class="max-w-[85%] bg-white border border-slate-200 text-slate-800 text-xs rounded-2xl rounded-tl-sm px-4 py-3 shadow-xs">
+                  হ্যালো! আমি শ্রেয়া 💜 মেসেজ দিয়ে দেখুন আমি কিভাবে রিপ্লাই দেই।
+                </div>
+              </div>
+            </div>
+
+            <!-- Simulator Input -->
+            <div class="p-3 border-t border-slate-200 bg-white">
+              <form onsubmit="handleSimulatorSend(event)" class="flex items-center gap-2">
+                <input 
+                  type="text" 
+                  id="sim-input" 
+                  placeholder="যেমন: কাজ করতে চাই / সার্ভিস লাগবে..."
+                  autocomplete="off"
+                  class="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white"
+                />
+                <button 
+                  type="submit" 
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition"
+                >
+                  টেস্ট করুন
+                </button>
+              </form>
+            </div>
+
+          </div>
+
+        </section>
+
+      </div>
+    </main>
   </div>
-</div>
 
-<script>
-/* ================== Elements ================== */
-const messagesEl = document.getElementById("messages");
-const input      = document.getElementById("input");
-const sendBtn    = document.getElementById("send");
-const newBtn     = document.getElementById("newChat");
+  <!-- ==================================================== -->
+  <!-- 3. CLIENT LOGIC: ROUTER, WEBSOCKET & STATE MACHINE -->
+  <!-- ==================================================== -->
+  <script>
+    // State Store
+    const state = {
+      token: localStorage.getItem('shreya_admin_token') || '',
+      globalAiEnabled: true,
+      users: [],
+      filteredUsers: [],
+      currentFilter: 'all',
+      searchQuery: '',
+      activeSessionId: null,
+      activeSession: null,
+      messages: [],
+      simSessionId: null,
+      ws: null,
+      stats: { totalUsers: 0, activeUsers: 0, fbUsers: 0, webUsers: 0, totalMessages: 0 },
+      config: {}
+    };
 
-let sessionId = null;
-let busy = false;
+    // --- Toast System ---
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+        error: 'bg-rose-50 border-rose-200 text-rose-800',
+        info: 'bg-indigo-50 border-indigo-200 text-indigo-800'
+      }[type] || 'bg-slate-50 border-slate-200 text-slate-800';
 
-/* ================== UI Helpers ================== */
-function addMessage(text, who) {
-  const div = document.createElement("div");
-  div.className = "msg " + who;
-  const safe = String(text).replace(/</g, "&lt;");
-  div.innerHTML = safe.replace(
-    /(https?:\/\/[^\s]+)/g,
-    '<a href="$1" target="_blank" rel="noopener">$1</a>'
-  );
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-lg text-xs font-semibold transition-all duration-300 transform translate-y-2 opacity-0 flex items-center gap-2 ${colors}`;
+      toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
 
-function showTyping() {
-  const t = document.createElement("div");
-  t.className = "typing"; t.id = "typing";
-  t.innerHTML = "<span></span><span></span><span></span>";
-  messagesEl.appendChild(t);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-function hideTyping() {
-  const t = document.getElementById("typing");
-  if (t) t.remove();
-}
-function clearMessages() { messagesEl.innerHTML = ""; }
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
 
-/* ================== API ================== */
-async function createSession() {
-  const res = await fetch("/api/session", { method: "POST" });
-  if (!res.ok) throw new Error("Could not create session");
-  const data = await res.json();
-  return data.sessionId;
-}
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-4');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
 
-async function loadHistory(id) {
-  const res = await fetch("/api/history/" + encodeURIComponent(id));
-  if (res.status === 404) return null;
-  if (!res.ok) throw new Error("Could not load history");
-  const data = await res.json();
-  return data.messages;
-}
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
 
-async function sendToServer(id, message) {
-  const res = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sessionId: id, message }),
-  });
-  const raw = await res.text();
-  let data;
-  try { data = JSON.parse(raw); }
-  catch { throw new Error("Bad response: " + raw); }
-  if (!res.ok) throw new Error(data.detail || data.error || ("HTTP " + res.status));
-  return data.reply;
-}
+    // --- Authentication ---
+    async function handleLogin(e) {
+      e.preventDefault();
+      const passwordInput = document.getElementById('login-password');
+      const errorBox = document.getElementById('login-error');
+      const btn = document.getElementById('login-btn');
+      
+      const password = passwordInput.value.trim();
+      if (!password) return;
 
-/* ================== Init ================== */
-async function init() {
-  addMessage("হ্যালো! আমি শ্রেয়া 💜 কীভাবে সাহায্য করতে পারি?", "bot");
+      btn.disabled = true;
+      btn.innerHTML = 'লগইন হচ্ছে...';
+      errorBox.classList.add('hidden');
 
-  sessionId = localStorage.getItem("sessionId");
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
 
-  if (sessionId) {
-    try {
-      const history = await loadHistory(sessionId);
-      if (history === null) {
-        sessionId = null;
-      } else if (history.length > 0) {
-        clearMessages();
-        history.forEach((m) =>
-          addMessage(m.content, m.role === "user" ? "user" : "bot")
+        if (res.ok && data.token) {
+          state.token = data.token;
+          localStorage.setItem('shreya_admin_token', data.token);
+          initAuthenticatedApp();
+          showToast('সফলভাবে লগইন হয়েছে!', 'success');
+        } else {
+          errorBox.textContent = data.error || 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড দিন।';
+          errorBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        errorBox.textContent = 'কানেকশন এরর: ' + err.message;
+        errorBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>লগইন করুন</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('login-password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    async function handleLogout() {
+      if (state.token) {
+        try {
+          await fetch('/api/admin/logout', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${state.token}` }
+          });
+        } catch {}
+      }
+      state.token = '';
+      localStorage.removeItem('shreya_admin_token');
+      if (state.ws) state.ws.close();
+      document.getElementById('login-view').classList.remove('hidden');
+      document.getElementById('app-layout').classList.add('hidden');
+      showToast('লগআউট সম্পন্ন হয়েছে', 'info');
+    }
+
+    async function checkAuthSession() {
+      if (!state.token) {
+        document.getElementById('login-view').classList.remove('hidden');
+        document.getElementById('app-layout').classList.add('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/me', {
+          headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          state.globalAiEnabled = data.globalAiEnabled;
+          initAuthenticatedApp();
+        } else {
+          handleLogout();
+        }
+      } catch {
+        document.getElementById('login-view').classList.remove('hidden');
+      }
+    }
+
+    function initAuthenticatedApp() {
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('app-layout').classList.remove('hidden');
+      
+      // Update webhook URL hint with current origin
+      document.getElementById('live-webhook-url').textContent = `${window.location.origin}/webhook`;
+
+      // Connect WebSocket for real-time sync
+      setupWebSocket();
+
+      // Load initial data
+      fetchStats();
+      fetchUsers();
+      fetchPromptSettings();
+      fetchSystemSettings();
+
+      // Handle Route
+      handleRoute();
+    }
+
+    // --- Real-time WebSocket Service ---
+    function setupWebSocket() {
+      if (state.ws) {
+        try { state.ws.close(); } catch {}
+      }
+
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${location.host}/ws`;
+
+      try {
+        state.ws = new WebSocket(wsUrl);
+
+        state.ws.onopen = () => {
+          updateWsStatus(true);
+          // Heartbeat ping
+          setInterval(() => {
+            if (state.ws && state.ws.readyState === 1) {
+              state.ws.send(JSON.stringify({ type: 'ping' }));
+            }
+          }, 25000);
+        };
+
+        state.ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            handleRealtimeEvent(data);
+          } catch (err) {
+            console.error("WS Parse error", err);
+          }
+        };
+
+        state.ws.onclose = () => {
+          updateWsStatus(false);
+          // Auto reconnect after 3 seconds
+          setTimeout(setupWebSocket, 3000);
+        };
+
+        state.ws.onerror = () => {
+          updateWsStatus(false);
+        };
+      } catch (err) {
+        console.warn("WebSocket init error, will retry:", err);
+      }
+    }
+
+    function updateWsStatus(connected) {
+      const indicator = document.getElementById('ws-indicator');
+      const badgeDot = document.getElementById('ws-badge-dot');
+      const badgeText = document.getElementById('ws-badge-text');
+
+      if (connected) {
+        indicator.innerHTML = `
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+        `;
+        badgeDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        badgeText.textContent = 'WebSocket লাইভ';
+      } else {
+        indicator.innerHTML = `<span class="inline-flex rounded-full h-2.5 w-2.5 bg-slate-300"></span>`;
+        badgeDot.className = 'w-2 h-2 rounded-full bg-slate-300';
+        badgeText.textContent = 'পুনরায় কানেক্ট হচ্ছে...';
+      }
+    }
+
+    // Handler for all zero-reload incoming WebSocket events
+    function handleRealtimeEvent(event) {
+      const { type, payload } = event;
+
+      if (type === 'new_message') {
+        const { sessionId, message } = payload;
+        
+        // If this message belongs to currently open conversation
+        if (state.activeSessionId === sessionId) {
+          // Avoid duplicate
+          const exists = state.messages.some(m => m.id === message.id || (m.createdAt === message.createdAt && m.content === message.content));
+          if (!exists) {
+            state.messages.push(message);
+            appendMessageToChat(message);
+          }
+        }
+
+        // Update user list & counters dynamically
+        updateUserLastMessage(sessionId, message);
+        fetchStats();
+      }
+
+      if (type === 'stats_update') {
+        renderStats(payload);
+      }
+
+      if (type === 'session_update') {
+        fetchUsers();
+      }
+
+      if (type === 'ai_toggle') {
+        const { sessionId, aiEnabled } = payload;
+        const u = state.users.find(u => u.sessionId === sessionId);
+        if (u) u.aiEnabled = aiEnabled;
+        if (state.activeSessionId === sessionId) {
+          updateUserAiUI(aiEnabled);
+        }
+        renderUsersList();
+      }
+
+      if (type === 'global_ai_toggle') {
+        state.globalAiEnabled = payload.globalAiEnabled;
+        updateGlobalAiUI(state.globalAiEnabled);
+      }
+
+      if (type === 'prompt_update') {
+        if (document.getElementById('system-prompt-input')) {
+          document.getElementById('system-prompt-input').value = payload.prompt;
+        }
+      }
+
+      if (type === 'settings_update') {
+        renderSystemConfig(payload.config);
+      }
+    }
+
+    // --- Client Routing (Left Sidebar buttons) ---
+    function handleRoute() {
+      const hash = window.location.hash || '#/dashboard';
+      const route = hash.replace('#', '') || '/dashboard';
+
+      // Close mobile sidebar drawer if open
+      if (typeof closeMobileSidebar === 'function') {
+        closeMobileSidebar();
+      }
+
+      // Hide all views
+      document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
+
+      // Remove active from all nav items
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-indigo-50', 'text-indigo-700', 'font-semibold');
+        el.classList.add('text-slate-600');
+        const icon = el.querySelector('svg');
+        if (icon) {
+          icon.classList.remove('text-indigo-600');
+          icon.classList.add('text-slate-400');
+        }
+      });
+
+      // Highlight active nav item
+      const activeNav = document.querySelector(`.nav-item[data-route="${route}"]`);
+      if (activeNav) {
+        activeNav.classList.add('bg-indigo-50', 'text-indigo-700', 'font-semibold');
+        activeNav.classList.remove('text-slate-600');
+        const icon = activeNav.querySelector('svg');
+        if (icon) {
+          icon.classList.add('text-indigo-600');
+          icon.classList.remove('text-slate-400');
+        }
+      }
+
+      // Title mapping
+      const titles = {
+        '/dashboard': { title: 'ড্যাশবোর্ড ওভারভিউ', sub: 'বটের রিয়েল-টাইম মেট্রিকস ও কার্যকলাপ' },
+        '/chat': { title: 'লাইভ চ্যাট ও ইনবক্স', sub: 'সকল ইউজারের সাথে বার্তালাপ ও রিয়েলটাইম মেসেজিং' },
+        '/users': { title: 'ইউজার ডিরেক্টরি', sub: 'ফেসবুক ও ওয়েব চ্যাট ইউজারদের তালিকা ও AI নিয়ন্ত্রণ' },
+        '/ai-config': { title: 'এআই বট ও প্রম্পট কনফিগ', sub: 'শ্রেয়া এআই বট কিভাবে কথা বলবে তা কাস্টমাইজ করুন' },
+        '/settings': { title: 'সিস্টেম ও এপিআই সেটিংস', sub: 'ফেসবুক পেজ টোকেন, ভেরিফাই টোকেন, অ্যাপ সিক্রেট ও Groq কী' },
+        '/test-chat': { title: 'লাইভ টেস্ট সিমুলেটর', sub: 'সরাসরি ব্রাউজারে বটের রিপ্লাই ও আচরণ পরীক্ষা করুন' },
+      };
+
+      const meta = titles[route] || titles['/dashboard'];
+      document.getElementById('top-title').textContent = meta.title;
+      document.getElementById('top-subtitle').textContent = meta.sub;
+
+      // Show target view
+      const viewMap = {
+        '/dashboard': 'view-dashboard',
+        '/chat': 'view-chat',
+        '/users': 'view-users',
+        '/ai-config': 'view-ai-config',
+        '/settings': 'view-settings',
+        '/test-chat': 'view-test-chat',
+      };
+
+      const targetId = viewMap[route] || 'view-dashboard';
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) targetEl.classList.remove('hidden');
+
+      // Hook up specific route loads
+      if (route === '/chat') {
+        renderChatUserList();
+      } else if (route === '/users') {
+        renderUsersTable();
+      } else if (route === '/test-chat') {
+        initSimulatorSession();
+      }
+    }
+
+    window.addEventListener('hashchange', handleRoute);
+
+    // --- API Data Fetching ---
+    async function fetchStats() {
+      if (!state.token) return;
+      try {
+        const res = await fetch('/api/admin/stats', {
+          headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          renderStats(data);
+        }
+      } catch (err) {
+        console.error("fetchStats error", err);
+      }
+    }
+
+    function renderStats(data) {
+      state.stats = data;
+      document.getElementById('stat-total-users').textContent = data.totalUsers || 0;
+      document.getElementById('stat-active-users').textContent = data.activeUsers || 0;
+      document.getElementById('stat-fb-users').textContent = data.fbUsers || 0;
+      document.getElementById('stat-total-messages').textContent = data.totalMessages || 0;
+
+      if (data.globalAiEnabled !== undefined) {
+        state.globalAiEnabled = data.globalAiEnabled;
+        updateGlobalAiUI(data.globalAiEnabled);
+      }
+    }
+
+    async function fetchUsers() {
+      if (!state.token) return;
+      try {
+        const res = await fetch('/api/admin/users', {
+          headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          state.users = data.users || [];
+          applyUserFilters();
+          renderDashboardRecentUsers();
+        }
+      } catch (err) {
+        console.error("fetchUsers error", err);
+      }
+    }
+
+    function applyUserFilters() {
+      let list = [...state.users];
+      if (state.currentFilter !== 'all') {
+        list = list.filter(u => u.platform === state.currentFilter);
+      }
+      if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        list = list.filter(u => 
+          (u.displayName && u.displayName.toLowerCase().includes(q)) ||
+          (u.externalId && u.externalId.toLowerCase().includes(q)) ||
+          (u.sessionId && u.sessionId.toLowerCase().includes(q))
         );
       }
-    } catch (e) {
-      console.warn("history load failed:", e);
-      sessionId = null;
+      state.filteredUsers = list;
+      renderChatUserList();
+      renderUsersTable();
     }
-  }
 
-  if (!sessionId) {
-    try {
-      sessionId = await createSession();
-      localStorage.setItem("sessionId", sessionId);
-    } catch (e) {
-      console.error(e);
-      addMessage("❌ সার্ভারের সাথে কানেক্ট করা যাচ্ছে না।", "error");
+    function renderDashboardRecentUsers() {
+      const container = document.getElementById('dashboard-recent-users');
+      const recent = state.users.slice(0, 5);
+
+      if (recent.length === 0) {
+        container.innerHTML = `<div class="py-8 text-center text-xs text-slate-400">এখনো কোনো ইউজার মেসেজ দেয়নি।</div>`;
+        return;
+      }
+
+      container.innerHTML = recent.map(u => {
+        const name = u.displayName || (u.platform === 'facebook' ? `FB ইউজার (${u.externalId.slice(-4)})` : 'ওয়েব ভিজিটর');
+        const lastMsg = u.lastMessage ? escapeHtml(u.lastMessage.content) : 'কোনো বার্তা নেই';
+        const timeAgo = formatTime(u.lastActive);
+        const badgeColor = u.platform === 'facebook' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-700';
+
+        return `
+          <div class="py-3 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 px-2 rounded-xl transition" onclick="selectUserForChat('${u.sessionId}'); window.location.hash='#/chat';">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center border border-slate-200">
+                ${name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-slate-900">${escapeHtml(name)}</span>
+                  <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded ${badgeColor}">${u.platform}</span>
+                </div>
+                <div class="text-xs text-slate-500 truncate max-w-xs">${lastMsg}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-[11px] text-slate-400">${timeAgo}</div>
+              <span class="text-[10px] font-medium ${u.aiEnabled ? 'text-emerald-600' : 'text-amber-600'}">${u.aiEnabled ? 'AI অন' : 'AI অফ'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
-  }
 
-  input.focus();
-}
+    // --- Live Chat UI & Logic ---
+    function renderChatUserList() {
+      const container = document.getElementById('chat-user-list');
+      if (!container) return;
 
-/* ================== Actions ================== */
-async function sendMessage() {
-  if (busy) return;
-  const text = input.value.trim();
-  if (!text) return;
+      if (state.filteredUsers.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">কোনো ইউজার পাওয়া যায়নি</div>`;
+        return;
+      }
 
-  if (!sessionId) {
-    addMessage("❌ session নেই, পেজ রিলোড করুন।", "error");
-    return;
-  }
+      container.innerHTML = state.filteredUsers.map(u => {
+        const isSelected = state.activeSessionId === u.sessionId;
+        const name = u.displayName || (u.platform === 'facebook' ? `FB (${u.externalId.slice(-4)})` : 'ওয়েব ভিজিটর');
+        const lastMsg = u.lastMessage ? escapeHtml(u.lastMessage.content) : 'কোনো বার্তা নেই';
+        const time = formatTime(u.lastActive);
+        const activeClass = isSelected ? 'bg-indigo-50/80 border-r-2 border-indigo-600' : 'hover:bg-slate-50';
 
-  busy = true;
-  input.disabled = true;
-  sendBtn.disabled = true;
+        return `
+          <div 
+            onclick="selectUserForChat('${u.sessionId}')" 
+            class="p-3.5 flex items-start gap-3 cursor-pointer border-b border-slate-100 transition ${activeClass}"
+          >
+            <div class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
+              ${name.charAt(0).toUpperCase()}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 truncate">${escapeHtml(name)}</span>
+                <span class="text-[10px] text-slate-400 shrink-0">${time}</span>
+              </div>
+              <p class="text-xs text-slate-500 truncate mt-0.5">${lastMsg}</p>
+              <div class="flex items-center justify-between mt-1">
+                <span class="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">${u.platform}</span>
+                <span class="text-[10px] font-semibold ${u.aiEnabled ? 'text-emerald-600' : 'text-amber-600'}">${u.aiEnabled ? 'AI অন' : 'AI অফ'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
-  addMessage(text, "user");
-  input.value = "";
-  showTyping();
+    async function selectUserForChat(sessionId) {
+      state.activeSessionId = sessionId;
+      renderChatUserList();
 
-  try {
-    const reply = await sendToServer(sessionId, text);
-    hideTyping();
-    addMessage(reply, "bot");
-  } catch (err) {
-    hideTyping();
-    console.error(err);
-    addMessage("❌ " + err.message, "error");
-  } finally {
-    busy = false;
-    input.disabled = false;
-    sendBtn.disabled = false;
-    input.focus();
-  }
-}
+      // Mobile: switch view from users list to conversation pane
+      const usersCol = document.getElementById('chat-users-col');
+      const convPane = document.getElementById('conversation-pane');
+      if (window.innerWidth < 768) {
+        if (usersCol) usersCol.classList.add('hidden');
+        if (convPane) {
+          convPane.classList.remove('hidden');
+          convPane.classList.add('flex');
+        }
+      }
 
-async function newChat() {
-  if (busy) return;
+      const convName = document.getElementById('conv-name');
+      const convSub = document.getElementById('conv-sub');
+      const avatar = document.getElementById('conv-avatar');
+      const platformBadge = document.getElementById('conv-platform-badge');
+      const aiControl = document.getElementById('user-ai-control');
+      const replyInput = document.getElementById('admin-reply-input');
+      const sendBtn = document.getElementById('admin-send-btn');
+      const container = document.getElementById('messages-container');
 
-  if (sessionId) {
-    // সার্ভার থেকে ডিলিট (তোমার server.js এ DELETE route নেই, তাই optional)
-    try {
-      await fetch("/api/session/" + encodeURIComponent(sessionId), {
-        method: "DELETE",
+      container.innerHTML = `<div class="h-full flex items-center justify-center text-xs text-slate-400">কথোপকথন লোড হচ্ছে...</div>`;
+
+      try {
+        const res = await fetch(`/api/admin/users/${sessionId}`, {
+          headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          state.activeSession = data.session;
+          state.messages = data.messages || [];
+
+          const name = data.session.displayName || (data.session.platform === 'facebook' ? `FB (${data.session.externalId.slice(-6)})` : 'ওয়েব ভিজিটর');
+          convName.textContent = name;
+          convSub.textContent = `আইডি: ${data.session.externalId} • তৈরি: ${formatTime(data.session.createdAt)}`;
+          avatar.textContent = name.charAt(0).toUpperCase();
+
+          const editNameBtn = document.getElementById('conv-edit-name-btn');
+          if (editNameBtn) editNameBtn.classList.remove('hidden');
+
+          platformBadge.className = `text-[10px] font-semibold px-2 py-0.5 rounded-md ${data.session.platform === 'facebook' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-700'}`;
+          platformBadge.textContent = data.session.platform;
+          platformBadge.classList.remove('hidden');
+
+          aiControl.classList.remove('hidden');
+          updateUserAiUI(data.session.aiEnabled);
+
+          replyInput.disabled = false;
+          sendBtn.disabled = false;
+          replyInput.focus();
+
+          renderMessages();
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="h-full flex items-center justify-center text-xs text-rose-500">মেসেজ লোড করতে সমস্যা হয়েছে: ${err.message}</div>`;
+      }
+    }
+
+    function renderMessages() {
+      const container = document.getElementById('messages-container');
+      if (state.messages.length === 0) {
+        container.innerHTML = `<div class="h-full flex items-center justify-center text-xs text-slate-400">এই ইউজারের সাথে এখনো কোনো মেসেজ আদান-প্রদান হয়নি।</div>`;
+        return;
+      }
+
+      container.innerHTML = state.messages.map(m => createMessageHtml(m)).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function createMessageHtml(m) {
+      const isUser = m.role === 'user';
+      const isAdmin = m.source === 'admin';
+      const align = isUser ? 'justify-start' : 'justify-end';
+      
+      let bubbleBg = '';
+      let badge = '';
+
+      if (isUser) {
+        bubbleBg = 'bg-white border border-slate-200 text-slate-900 rounded-tl-sm';
+        badge = '<span class="text-[10px] font-semibold text-slate-400">ইউজার</span>';
+      } else if (isAdmin) {
+        bubbleBg = 'bg-indigo-600 text-white rounded-tr-sm';
+        badge = '<span class="text-[10px] font-semibold text-indigo-200">এডমিন (ম্যানুয়াল)</span>';
+      } else if (m.source === 'meta_automation') {
+        bubbleBg = 'bg-blue-600 text-white rounded-tr-sm';
+        badge = '<span class="text-[10px] font-semibold text-blue-100">মেটা অটোমেশন (স্বয়ংক্রিয় নাম/বার্ত্তা)</span>';
+      } else {
+        bubbleBg = 'bg-slate-800 text-white rounded-tr-sm';
+        badge = '<span class="text-[10px] font-semibold text-slate-300">শ্রেয়া (AI বট)</span>';
+      }
+
+      const time = formatTime(m.createdAt);
+
+      return `
+        <div class="flex ${align}">
+          <div class="max-w-[78%] ${bubbleBg} px-4 py-2.5 rounded-2xl shadow-xs space-y-1">
+            <div class="flex items-center justify-between gap-4">
+              ${badge}
+              <span class="text-[10px] opacity-75">${time}</span>
+            </div>
+            <div class="text-xs leading-relaxed break-words whitespace-pre-wrap">${escapeHtml(m.content)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function appendMessageToChat(message) {
+      const container = document.getElementById('messages-container');
+      const div = document.createElement('div');
+      div.innerHTML = createMessageHtml(message);
+      container.appendChild(div.firstElementChild);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function updateUserLastMessage(sessionId, message) {
+      const u = state.users.find(u => u.sessionId === sessionId);
+      if (u) {
+        u.lastMessage = message;
+        u.lastActive = message.createdAt || new Date().toISOString();
+        u.messageCount = (u.messageCount || 0) + 1;
+        applyUserFilters();
+      } else {
+        fetchUsers();
+      }
+    }
+
+    async function handleSendAdminReply(e) {
+      e.preventDefault();
+      if (!state.activeSessionId) return;
+
+      const input = document.getElementById('admin-reply-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+
+      try {
+        const res = await fetch(`/api/admin/users/${state.activeSessionId}/message`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ message: text })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          showToast('মেসেজ পাঠাতে সমস্যা: ' + (err.error || 'Server error'), 'error');
+        }
+      } catch (err) {
+        showToast('কানেকশন এরর: ' + err.message, 'error');
+      }
+    }
+
+    // --- Per-User AI Toggle ---
+    async function toggleActiveUserAi() {
+      if (!state.activeSessionId || !state.activeSession) return;
+      const targetState = !state.activeSession.aiEnabled;
+
+      try {
+        const res = await fetch(`/api/admin/users/${state.activeSessionId}/ai`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ aiEnabled: targetState })
+        });
+
+        if (res.ok) {
+          state.activeSession.aiEnabled = targetState;
+          updateUserAiUI(targetState);
+          showToast(`এই ইউজারের জন্য AI ${targetState ? 'অন' : 'অফ'} করা হয়েছে`, 'info');
+        }
+      } catch (err) {
+        showToast('AI স্ট্যাটাস পরিবর্তন ব্যর্থ: ' + err.message, 'error');
+      }
+    }
+
+    async function promptEditUserName() {
+      if (!state.activeSessionId || !state.activeSession) return;
+      const current = state.activeSession.displayName || '';
+      const newName = prompt('ইউজারের নাম পরিবর্তন / এডিট করুন:', current);
+      if (newName === null) return;
+      try {
+        const res = await fetch(`/api/admin/users/${state.activeSessionId}/name`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ displayName: newName.trim() })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          state.activeSession.displayName = data.displayName;
+          document.getElementById('conv-name').textContent = data.displayName || 'নামহীন ইউজার';
+          fetchUsers();
+          showToast('ইউজারের নাম সফলভাবে আপডেট হয়েছে', 'success');
+        } else {
+          showToast('নাম আপডেট ব্যর্থ: ' + (data.error || ''), 'error');
+        }
+      } catch (err) {
+        showToast('নাম আপডেট এরর: ' + err.message, 'error');
+      }
+    }
+
+    function updateUserAiUI(enabled) {
+      const btn = document.getElementById('user-ai-toggle-btn');
+      const thumb = document.getElementById('user-ai-thumb');
+      const label = document.getElementById('user-ai-status-label');
+
+      if (enabled) {
+        btn.className = 'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-emerald-500 transition-colors duration-200 ease-in-out focus:outline-none';
+        thumb.className = 'translate-x-4 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out';
+        label.textContent = 'চালু আছে';
+        label.className = 'text-[10px] text-emerald-600 font-medium';
+      } else {
+        btn.className = 'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-slate-300 transition-colors duration-200 ease-in-out focus:outline-none';
+        thumb.className = 'translate-x-0 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out';
+        label.textContent = 'বন্ধ আছে (ম্যানুয়াল মোড)';
+        label.className = 'text-[10px] text-amber-600 font-medium';
+      }
+    }
+
+    // --- Global AI Toggle ---
+    async function toggleGlobalAi() {
+      const target = !state.globalAiEnabled;
+      try {
+        const res = await fetch('/api/admin/settings/global-ai', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ enabled: target })
+        });
+
+        if (res.ok) {
+          state.globalAiEnabled = target;
+          updateGlobalAiUI(target);
+          showToast(`গ্লোবাল AI রিপ্লাই ${target ? 'চালু' : 'সাময়িক বন্ধ'} করা হয়েছে`, 'info');
+        }
+      } catch (err) {
+        showToast('গ্লোবাল AI পরিবর্তন ব্যর্থ: ' + err.message, 'error');
+      }
+    }
+
+    function updateGlobalAiUI(enabled) {
+      const btn = document.getElementById('sidebar-global-ai-toggle');
+      const thumb = document.getElementById('global-ai-thumb');
+      const text = document.getElementById('global-ai-status-text');
+
+      if (enabled) {
+        btn.className = 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-emerald-500 transition-colors duration-200 ease-in-out focus:outline-none';
+        thumb.className = 'translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out';
+        text.textContent = 'সক্রিয় আছে';
+        text.className = 'text-[11px] text-emerald-600 font-medium';
+      } else {
+        btn.className = 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-slate-300 transition-colors duration-200 ease-in-out focus:outline-none';
+        thumb.className = 'translate-x-0 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out';
+        text.textContent = 'সাময়িক বন্ধ আছে';
+        text.className = 'text-[11px] text-amber-600 font-medium';
+      }
+    }
+
+    // --- Users Table Directory View ---
+    function renderUsersTable() {
+      const tbody = document.getElementById('users-table-body');
+      if (!tbody) return;
+
+      if (state.filteredUsers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">কোনো ইউজার পাওয়া যায়নি</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = state.filteredUsers.map(u => {
+        const name = u.displayName || (u.platform === 'facebook' ? `FB (${u.externalId.slice(-6)})` : 'ওয়েব ভিজিটর');
+        const lastMsg = u.lastMessage ? escapeHtml(u.lastMessage.content) : 'কোনো বার্তা নেই';
+        const badgeColor = u.platform === 'facebook' ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-700';
+
+        return `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center border border-slate-200">
+                  ${name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>${escapeHtml(name)}</span>
+                    ${u.nameCaptured ? '<span class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">নাম সেট</span>' : ''}
+                  </div>
+                  <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded ${badgeColor}">${u.platform}</span>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 max-w-xs truncate text-slate-600">
+              ${lastMsg}
+            </td>
+            <td class="px-6 py-4 font-semibold text-slate-700">
+              ${u.messageCount || 0}
+            </td>
+            <td class="px-6 py-4 text-slate-500">
+              ${formatTime(u.lastActive)}
+            </td>
+            <td class="px-6 py-4">
+              <button 
+                onclick="toggleUserAiFromTable('${u.sessionId}', ${!u.aiEnabled})" 
+                class="px-2.5 py-1 rounded-lg text-xs font-semibold ${u.aiEnabled ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}"
+              >
+                ${u.aiEnabled ? 'AI অন' : 'AI অফ'}
+              </button>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <button 
+                onclick="selectUserForChat('${u.sessionId}'); window.location.hash='#/chat';"
+                class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg text-xs transition"
+              >
+                চ্যাট খুলুন &rarr;
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function toggleUserAiFromTable(sessionId, targetState) {
+      try {
+        const res = await fetch(`/api/admin/users/${sessionId}/ai`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ aiEnabled: targetState })
+        });
+        if (res.ok) {
+          const u = state.users.find(u => u.sessionId === sessionId);
+          if (u) u.aiEnabled = targetState;
+          applyUserFilters();
+          showToast(`AI স্ট্যাটাস পরিবর্তন সফল`, 'info');
+        }
+      } catch (err) {
+        showToast('ব্যর্থ হয়েছে: ' + err.message, 'error');
+      }
+    }
+
+    function filterUsers(platform) {
+      state.currentFilter = platform;
+      document.querySelectorAll('.user-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-filter') === platform) {
+          btn.className = 'user-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/70';
+        } else {
+          btn.className = 'user-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100';
+        }
       });
-    } catch {}
-  }
+      applyUserFilters();
+    }
 
-  localStorage.removeItem("sessionId");
-  clearMessages();
-  addMessage("নতুন চ্যাট শুরু হয়েছে 💜", "bot");
+    function handleUserSearch(val) {
+      state.searchQuery = val;
+      applyUserFilters();
+    }
 
-  try {
-    sessionId = await createSession();
-    localStorage.setItem("sessionId", sessionId);
-  } catch (e) {
-    addMessage("❌ সার্ভারে কানেক্ট করা যায়নি।", "error");
-  }
-  input.focus();
-}
+    function handleUserDirectorySearch(val) {
+      state.searchQuery = val;
+      applyUserFilters();
+    }
 
-/* ================== Events ================== */
-sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    sendMessage();
-  }
-});
-newBtn.addEventListener("click", newChat);
+    // --- AI Prompt Settings ---
+    async function fetchPromptSettings() {
+      if (!state.token) return;
+      try {
+        const res = await fetch('/api/admin/settings/prompt', {
+          headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('system-prompt-input').value = data.prompt || '';
+        }
+      } catch (err) {
+        console.error("fetchPromptSettings error", err);
+      }
+    }
 
-/* ================== Start ================== */
-init();
-</script>
+    async function saveSystemPrompt() {
+      const input = document.getElementById('system-prompt-input');
+      const btn = document.getElementById('save-prompt-btn');
+      const prompt = input.value.trim();
+
+      if (!prompt) {
+        showToast('প্রম্পট খালি রাখা যাবে না!', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = 'সংরক্ষণ হচ্ছে...';
+
+      try {
+        const res = await fetch('/api/admin/settings/prompt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ prompt })
+        });
+
+        if (res.ok) {
+          showToast('সিস্টেম প্রম্পট সফলভাবে সংরক্ষিত হয়েছে!', 'success');
+        } else {
+          showToast('প্রম্পট সেভ ব্যর্থ হয়েছে', 'error');
+        }
+      } catch (err) {
+        showToast('এরর: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>প্রম্পট সংরক্ষণ করুন</span>`;
+      }
+    }
+
+    async function resetPromptToDefault() {
+      if (!confirm('আপনি কি নিশ্চিত যে প্রম্পটটি ডিফল্টে রিসেট করতে চান?')) return;
+
+      try {
+        const res = await fetch('/api/admin/settings/prompt/reset', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('system-prompt-input').value = data.prompt;
+          showToast('প্রম্পট সফলভাবে ডিফল্টে রিসেট হয়েছে', 'success');
+        }
+      } catch (err) {
+        showToast('রিসেট ব্যর্থ: ' + err.message, 'error');
+      }
+    }
+
+    // --- System & API Settings ---
+    async function fetchSystemSettings() {
+      if (!state.token) return;
+      try {
+        const res = await fetch('/api/admin/settings/system', {
+          headers: { 'Authorization': `Bearer ${state.token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          renderSystemConfig(data.config);
+        }
+      } catch (err) {
+        console.error("fetchSystemSettings error", err);
+      }
+    }
+
+    function renderSystemConfig(cfg) {
+      state.config = cfg || {};
+      
+      document.getElementById('cfg-fb-page-token').value = cfg.FB_PAGE_ACCESS_TOKEN || '';
+      document.getElementById('cfg-fb-verify-token').value = cfg.FB_VERIFY_TOKEN || '';
+      document.getElementById('cfg-fb-app-secret').value = cfg.FB_APP_SECRET || '';
+      document.getElementById('cfg-groq-api-key').value = cfg.GROQ_API_KEY || '';
+      if (cfg.MODEL) document.getElementById('cfg-model').value = cfg.MODEL;
+      if (cfg.MAX_HISTORY) document.getElementById('cfg-max-history').value = cfg.MAX_HISTORY;
+      document.getElementById('cfg-admin-password').value = cfg.ADMIN_PASSWORD || 'Sakib@7890';
+      document.getElementById('cfg-mongodb-uri').value = cfg.MONGODB_URI || '';
+
+      const firstMsgCheckbox = document.getElementById('cfg-first-msg-ai');
+      if (firstMsgCheckbox) {
+        firstMsgCheckbox.checked = cfg.FIRST_MSG_AI_DISABLED !== false;
+      }
+
+      document.getElementById('live-verify-token-display').textContent = cfg.FB_VERIFY_TOKEN || 'সেট করা নেই';
+
+      // Status badges
+      const fbStatus = document.getElementById('dash-fb-status');
+      if (cfg.hasFbToken) {
+        fbStatus.textContent = 'কানেক্টেড';
+        fbStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+      } else {
+        fbStatus.textContent = 'টোকেন বাকি';
+        fbStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+      }
+
+      const groqStatus = document.getElementById('dash-groq-status');
+      if (cfg.hasGroqKey) {
+        groqStatus.textContent = 'একটিভ';
+        groqStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+      } else {
+        groqStatus.textContent = 'কী দিন';
+        groqStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+      }
+    }
+
+    async function saveSystemSettings(e) {
+      e.preventDefault();
+      const btn = document.getElementById('save-settings-btn');
+      btn.disabled = true;
+      btn.innerHTML = 'সংরক্ষণ হচ্ছে...';
+
+      const payload = {
+        FB_PAGE_ACCESS_TOKEN: document.getElementById('cfg-fb-page-token').value.trim(),
+        FB_VERIFY_TOKEN: document.getElementById('cfg-fb-verify-token').value.trim(),
+        FB_APP_SECRET: document.getElementById('cfg-fb-app-secret').value.trim(),
+        GROQ_API_KEY: document.getElementById('cfg-groq-api-key').value.trim(),
+        MODEL: document.getElementById('cfg-model').value,
+        MAX_HISTORY: document.getElementById('cfg-max-history').value,
+        ADMIN_PASSWORD: document.getElementById('cfg-admin-password').value.trim(),
+        MONGODB_URI: document.getElementById('cfg-mongodb-uri').value.trim(),
+        FIRST_MSG_AI_DISABLED: document.getElementById('cfg-first-msg-ai') ? document.getElementById('cfg-first-msg-ai').checked : true,
+      };
+
+      try {
+        const res = await fetch('/api/admin/settings/system', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          renderSystemConfig(data.config);
+          showToast(data.message || 'সকল সেটিংস সফলভাবে আপডেট হয়েছে!', 'success');
+        } else {
+          showToast('সেটিংস সেভ ব্যর্থ: ' + (data.error || 'Unknown error'), 'error');
+        }
+      } catch (err) {
+        showToast('এরর: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>সকল সেটিংস সংরক্ষণ করুন</span>`;
+      }
+    }
+
+    async function testConnection(type) {
+      showToast(`${type === 'facebook' ? 'ফেসবুক' : 'Groq API'} টেস্ট হচ্ছে...`, 'info');
+      try {
+        const res = await fetch('/api/admin/settings/test-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${state.token}`
+          },
+          body: JSON.stringify({ type })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          showToast(data.message, 'success');
+        } else {
+          showToast(data.message || 'কানেকশন টেস্ট ব্যর্থ!', 'error');
+        }
+      } catch (err) {
+        showToast('টেস্ট রিকোয়েস্ট ব্যর্থ: ' + err.message, 'error');
+      }
+    }
+
+    function copyToClipboard(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text);
+      showToast('Webhook Callback URL ক্লিপবোর্ডে কপি হয়েছে!', 'success');
+    }
+
+    function copyVerifyToken() {
+      const text = document.getElementById('cfg-fb-verify-token').value || state.config.FB_VERIFY_TOKEN;
+      if (!text) {
+        showToast('Verify token এখনও সেট করা নেই', 'info');
+        return;
+      }
+      navigator.clipboard.writeText(text);
+      showToast('Verify Token ক্লিপবোর্ডে কপি হয়েছে!', 'success');
+    }
+
+    // --- Interactive Simulator Logic ---
+    async function initSimulatorSession() {
+      if (state.simSessionId) return;
+      try {
+        const res = await fetch('/api/session', { method: 'POST' });
+        const data = await res.json();
+        state.simSessionId = data.sessionId;
+      } catch (err) {
+        console.error("Simulator session error", err);
+      }
+    }
+
+    function resetSimulatorSession() {
+      state.simSessionId = null;
+      document.getElementById('sim-messages').innerHTML = `
+        <div class="flex justify-start">
+          <div class="max-w-[85%] bg-white border border-slate-200 text-slate-800 text-xs rounded-2xl rounded-tl-sm px-4 py-3 shadow-xs">
+            নতুন চ্যাট সেশন শুরু হয়েছে! আমাকে যেকোনো প্রশ্ন করুন।
+          </div>
+        </div>
+      `;
+      initSimulatorSession();
+      showToast('নতুন সিমুলেটর সেশন তৈরি করা হয়েছে', 'info');
+    }
+
+    async function handleSimulatorSend(e) {
+      e.preventDefault();
+      const input = document.getElementById('sim-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      await initSimulatorSession();
+
+      const container = document.getElementById('sim-messages');
+      // User bubble
+      const userDiv = document.createElement('div');
+      userDiv.className = 'flex justify-end';
+      userDiv.innerHTML = `
+        <div class="max-w-[85%] bg-indigo-600 text-white text-xs rounded-2xl rounded-tr-sm px-4 py-3 shadow-xs">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      container.appendChild(userDiv);
+      container.scrollTop = container.scrollHeight;
+
+      // Assistant placeholder
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'flex justify-start';
+      loadingDiv.innerHTML = `
+        <div class="max-w-[85%] bg-white border border-slate-200 text-slate-400 text-xs rounded-2xl rounded-tl-sm px-4 py-3 shadow-xs flex items-center gap-1.5">
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"></span>
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style="animation-delay: 0.15s"></span>
+          <span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style="animation-delay: 0.3s"></span>
+        </div>
+      `;
+      container.appendChild(loadingDiv);
+      container.scrollTop = container.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId: state.simSessionId, message: text })
+        });
+        const data = await res.json();
+        loadingDiv.remove();
+
+        const botDiv = document.createElement('div');
+        botDiv.className = 'flex justify-start';
+        botDiv.innerHTML = `
+          <div class="max-w-[85%] bg-white border border-slate-200 text-slate-800 text-xs rounded-2xl rounded-tl-sm px-4 py-3 shadow-xs">
+            ${escapeHtml(data.reply || '...')}
+            ${data.aiDisabled ? '<div class="text-[10px] text-amber-600 mt-1 font-semibold">[নোট: AI রিপ্লাই বর্তমানে অফ আছে]</div>' : ''}
+          </div>
+        `;
+        container.appendChild(botDiv);
+        container.scrollTop = container.scrollHeight;
+      } catch (err) {
+        loadingDiv.remove();
+        showToast('সিমুলেটর এরর: ' + err.message, 'error');
+      }
+    }
+
+    // --- Mobile Responsive & UI Helpers ---
+    function openMobileSidebar() {
+      const sidebar = document.getElementById('main-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (sidebar) sidebar.classList.remove('-translate-x-full');
+      if (backdrop) backdrop.classList.remove('hidden');
+    }
+
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('main-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (sidebar) sidebar.classList.add('-translate-x-full');
+      if (backdrop) backdrop.classList.add('hidden');
+    }
+
+    function backToUserListMobile() {
+      const usersCol = document.getElementById('chat-users-col');
+      const convPane = document.getElementById('conversation-pane');
+      if (usersCol) usersCol.classList.remove('hidden');
+      if (convPane) {
+        convPane.classList.add('hidden');
+        convPane.classList.remove('flex');
+      }
+    }
+
+    // --- Settings Visibility and Copy Helpers ---
+    function toggleFieldVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+          icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+        }
+      } else {
+        input.type = 'password';
+        if (icon) {
+          icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />`;
+        }
+      }
+    }
+
+    let allSecretsVisible = true;
+    function toggleAllSettingsVisibility() {
+      allSecretsVisible = !allSecretsVisible;
+      const targetType = allSecretsVisible ? 'text' : 'password';
+
+      const fields = [
+        { id: 'cfg-fb-page-token', icon: 'eye-fb-token' },
+        { id: 'cfg-fb-verify-token', icon: 'eye-fb-verify' },
+        { id: 'cfg-fb-app-secret', icon: 'eye-fb-secret' },
+        { id: 'cfg-groq-api-key', icon: 'eye-groq-key' },
+        { id: 'cfg-admin-password', icon: 'eye-admin-password' },
+        { id: 'cfg-mongodb-uri', icon: 'eye-mongo-uri' },
+      ];
+
+      fields.forEach(f => {
+        const el = document.getElementById(f.id);
+        const ic = document.getElementById(f.icon);
+        if (el) el.type = targetType;
+        if (ic) {
+          if (allSecretsVisible) {
+            ic.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+          } else {
+            ic.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />`;
+          }
+        }
+      });
+
+      const btnText = document.getElementById('toggle-all-text');
+      if (btnText) {
+        btnText.textContent = allSecretsVisible ? 'সব তথ্য লুকান (Hide)' : 'সব তথ্য দেখুন (Show All)';
+      }
+    }
+
+    function copyInputVal(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input || !input.value) {
+        showToast('কপি করার মতো কোনো তথ্য নেই', 'info');
+        return;
+      }
+      navigator.clipboard.writeText(input.value).then(() => {
+        showToast('ক্লিপবোর্ডে কপি করা হয়েছে!', 'success');
+      }).catch(() => {
+        input.select();
+        document.execCommand('copy');
+        showToast('ক্লিপবোর্ডে কপি করা হয়েছে!', 'success');
+      });
+    }
+
+    // --- Helpers ---
+    function formatTime(isoStr) {
+      if (!isoStr) return '';
+      try {
+        const date = new Date(isoStr);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / (1000 * 60));
+        
+        if (diffMins < 1) return 'এইমাত্র';
+        if (diffMins < 60) return `${diffMins} মি আগে`;
+        
+        const diffHours = Math.floor(diffMins / 60);
+        if (diffHours < 24) return `${diffHours} ঘণ্টা আগে`;
+
+        return date.toLocaleDateString('bn-BD', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } catch {
+        return '';
+      }
+    }
+
+    // Start application on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuthSession();
+    });
+  </script>
+
 </body>
 </html>
