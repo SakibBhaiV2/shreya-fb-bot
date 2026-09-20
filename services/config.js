@@ -3,6 +3,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 
 const ENV_FILE_PATH = path.join(__dirname, "..", ".env");
+const CONFIG_STORE_PATH = path.join(__dirname, "..", "config_store.json");
 
 // Default settings state initialized from process.env
 const settings = {
@@ -16,6 +17,23 @@ const settings = {
   MONGODB_URI: process.env.MONGODB_URI || "",
   FIRST_MSG_AI_DISABLED: process.env.FIRST_MSG_AI_DISABLED !== "false", // default true: pause AI on 1st msg to allow Meta automation name echo
 };
+
+// Initial load from local config_store.json if it exists
+try {
+  if (fs.existsSync(CONFIG_STORE_PATH)) {
+    const raw = fs.readFileSync(CONFIG_STORE_PATH, "utf8");
+    const saved = JSON.parse(raw);
+    for (const [k, v] of Object.entries(saved)) {
+      if (v !== undefined && v !== "") {
+        settings[k] = v;
+        process.env[k] = String(v);
+      }
+    }
+    console.log("Loaded system settings from local config_store.json");
+  }
+} catch (err) {
+  console.warn("Could not load local config_store.json:", err.message);
+}
 
 function isFirstMessageAiDisabled() {
   return settings.FIRST_MSG_AI_DISABLED !== false;
@@ -91,10 +109,10 @@ async function loadConfigFromDb() {
           setSystemPrompt(doc.SYSTEM_PROMPT);
         } catch {}
       }
-      console.log("✅ System configuration & prompt loaded from MongoDB");
+      console.log("System configuration & prompt loaded from MongoDB");
     }
   } catch (err) {
-    console.warn("⚠️ Could not load config from MongoDB:", err.message);
+    console.warn("Could not load config from MongoDB:", err.message);
   }
 }
 
@@ -121,9 +139,9 @@ async function saveConfigToDb(extra = {}) {
       { $set: updateData },
       { upsert: true, new: true }
     );
-    console.log("✅ Configuration successfully persisted to MongoDB");
+    console.log("Configuration successfully persisted to MongoDB");
   } catch (err) {
-    console.warn("⚠️ Could not persist config to MongoDB:", err.message);
+    console.warn("Could not persist config to MongoDB:", err.message);
   }
 }
 
@@ -140,10 +158,25 @@ async function updateConfig(newValues = {}) {
         // Don't overwrite if masked value was sent back
         if (value.includes("••••") || value.includes("...")) continue;
         const cleanVal = value.trim();
+
+        // If the user left a field blank in the form, but a value was ALREADY set,
+        // preserve the existing value instead of wiping it out
+        if (!cleanVal && settings[key]) {
+          console.log(`[Config] Preserving existing non-empty value for ${key}`);
+          continue;
+        }
+
         settings[key] = cleanVal;
         process.env[key] = cleanVal;
       }
     }
+  }
+
+  // Persist to local config_store.json backup
+  try {
+    fs.writeFileSync(CONFIG_STORE_PATH, JSON.stringify(settings, null, 2), "utf8");
+  } catch (err) {
+    console.warn("Could not write config_store.json:", err.message);
   }
 
   // Persist to .env file if writable
@@ -174,10 +207,10 @@ async function updateConfig(newValues = {}) {
         await mongoose.disconnect();
       }
       await mongoose.connect(settings.MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
-      console.log("✅ Reconnected to updated MongoDB URI");
+      console.log("Reconnected to updated MongoDB URI");
       await saveConfigToDb();
     } catch (dbErr) {
-      console.warn("⚠️ Failed connecting to new MongoDB URI:", dbErr.message);
+      console.warn("Failed connecting to new MongoDB URI:", dbErr.message);
     }
   }
 

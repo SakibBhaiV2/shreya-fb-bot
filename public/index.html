@@ -1892,41 +1892,65 @@
     }
 
     function renderSystemConfig(cfg) {
-      state.config = cfg || {};
+      if (!cfg || typeof cfg !== 'object' || Object.keys(cfg).length === 0) {
+        console.warn("Empty or invalid config received, skipping render to preserve input values");
+        return;
+      }
+      state.config = cfg;
       
-      document.getElementById('cfg-fb-page-token').value = cfg.FB_PAGE_ACCESS_TOKEN || '';
-      document.getElementById('cfg-fb-verify-token').value = cfg.FB_VERIFY_TOKEN || '';
-      document.getElementById('cfg-fb-app-secret').value = cfg.FB_APP_SECRET || '';
-      document.getElementById('cfg-groq-api-key').value = cfg.GROQ_API_KEY || '';
+      const setIfAvailable = (id, val) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (val !== undefined && val !== null && val !== '') {
+          el.value = val;
+        } else if (!el.value) {
+          el.value = '';
+        }
+      };
+
+      setIfAvailable('cfg-fb-page-token', cfg.FB_PAGE_ACCESS_TOKEN);
+      setIfAvailable('cfg-fb-verify-token', cfg.FB_VERIFY_TOKEN);
+      setIfAvailable('cfg-fb-app-secret', cfg.FB_APP_SECRET);
+      setIfAvailable('cfg-groq-api-key', cfg.GROQ_API_KEY);
       if (cfg.MODEL) document.getElementById('cfg-model').value = cfg.MODEL;
       if (cfg.MAX_HISTORY) document.getElementById('cfg-max-history').value = cfg.MAX_HISTORY;
-      document.getElementById('cfg-admin-password').value = cfg.ADMIN_PASSWORD || 'Sakib@7890';
-      document.getElementById('cfg-mongodb-uri').value = cfg.MONGODB_URI || '';
+      if (cfg.ADMIN_PASSWORD) document.getElementById('cfg-admin-password').value = cfg.ADMIN_PASSWORD;
+      setIfAvailable('cfg-mongodb-uri', cfg.MONGODB_URI);
 
       const firstMsgCheckbox = document.getElementById('cfg-first-msg-ai');
-      if (firstMsgCheckbox) {
+      if (firstMsgCheckbox && cfg.FIRST_MSG_AI_DISABLED !== undefined) {
         firstMsgCheckbox.checked = cfg.FIRST_MSG_AI_DISABLED !== false;
       }
 
-      document.getElementById('live-verify-token-display').textContent = cfg.FB_VERIFY_TOKEN || 'সেট করা নেই';
+      const verifyInput = document.getElementById('cfg-fb-verify-token');
+      const verifyDisplay = document.getElementById('live-verify-token-display');
+      if (verifyDisplay) {
+        verifyDisplay.textContent = cfg.FB_VERIFY_TOKEN || (verifyInput ? verifyInput.value : '') || 'সেট করা নেই';
+      }
 
       // Status badges
       const fbStatus = document.getElementById('dash-fb-status');
-      if (cfg.hasFbToken) {
-        fbStatus.textContent = 'কানেক্টেড';
-        fbStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
-      } else {
-        fbStatus.textContent = 'টোকেন বাকি';
-        fbStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+      if (fbStatus) {
+        const hasFb = cfg.hasFbToken || Boolean(cfg.FB_PAGE_ACCESS_TOKEN);
+        if (hasFb) {
+          fbStatus.textContent = 'কানেক্টেড';
+          fbStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        } else {
+          fbStatus.textContent = 'টোকেন বাকি';
+          fbStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+        }
       }
 
       const groqStatus = document.getElementById('dash-groq-status');
-      if (cfg.hasGroqKey) {
-        groqStatus.textContent = 'একটিভ';
-        groqStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
-      } else {
-        groqStatus.textContent = 'কী দিন';
-        groqStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+      if (groqStatus) {
+        const hasGroq = cfg.hasGroqKey || Boolean(cfg.GROQ_API_KEY);
+        if (hasGroq) {
+          groqStatus.textContent = 'একটিভ';
+          groqStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+        } else {
+          groqStatus.textContent = 'কী দিন';
+          groqStatus.className = 'px-2 py-0.5 rounded-md font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+        }
       }
     }
 

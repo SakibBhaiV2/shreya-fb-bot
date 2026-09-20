@@ -433,9 +433,9 @@ router.get("/settings/system", requireAdminAuth, (req, res) => {
 });
 
 // 15. System Configuration: Update configuration
-router.post("/settings/system", requireAdminAuth, (req, res) => {
+router.post("/settings/system", requireAdminAuth, async (req, res) => {
   try {
-    const updated = updateConfig(req.body);
+    const updated = await updateConfig(req.body);
     broadcast("settings_update", { config: updated });
     res.json({
       success: true,
@@ -443,6 +443,7 @@ router.post("/settings/system", requireAdminAuth, (req, res) => {
       message: "সকল সেটিংস সফলভাবে আপডেট ও সংরক্ষিত হয়েছে!",
     });
   } catch (err) {
+    console.error("Settings update error:", err);
     res.status(500).json({ error: "Failed to update settings: " + err.message });
   }
 });
