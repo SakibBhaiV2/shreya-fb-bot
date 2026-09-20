@@ -7,6 +7,8 @@ const {
   sendMessengerText,
   replyToComment,
   getUserName,
+  isOurOutgoingMessage,
+  isValidPersonName,
 } = require("../services/facebook");
 const { getConfig, isFirstMessageAiDisabled } = require("../services/config");
 const { broadcast } = require("../services/realtime");
@@ -41,28 +43,29 @@ function verifySignature(req) {
   }
 }
 
-/* ---------- Webhook verification ---------- */
-router.get("/webhook", (req, res) => {
+/* ---------- GET /webhook (Facebook verification) ---------- */
+router.get("/", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
   const expectedToken = getVerifyToken();
   if (mode === "subscribe" && token === expectedToken) {
-    console.log("✅ Webhook verified successfully");
+    console.log("Webhook verified successfully with token:", token);
     return res.status(200).send(challenge);
   }
-  console.warn("❌ Webhook verification failed - token mismatch or invalid mode");
+  console.warn("Webhook verification failed. Token received:", token, "Expected:", expectedToken);
   res.sendStatus(403);
 });
 
-/* ---------- Main webhook ---------- */
-router.post("/webhook", async (req, res) => {
+/* ---------- POST /webhook (Facebook events) ---------- */
+router.post("/", async (req, res) => {
   if (!verifySignature(req)) {
-    console.warn("❌ Invalid webhook signature");
-    return res.sendStatus(401);
+    console.warn("Invalid webhook signature received");
+    return res.status(403).send("Invalid signature");
   }
 
+  // Acknowledge Facebook immediately
   res.status(200).send("EVENT_RECEIVED");
 
   try {
@@ -70,13 +73,33 @@ router.post("/webhook", async (req, res) => {
     if (body.object !== "page") return;
 
     for (const entry of body.entry || []) {
-      /* ----- 1) Messenger messages ----- */
-      for (const event of entry.messaging || []) {
-        // Handle echo message (outgoing from Page, including Meta Business Suite automation)
+      const pageId = entry.id;
+
+      // Check both regular messaging and standby (standby is used by Meta Business Suite automations & handover)
+      const allMessagingEvents = [
+        ...(entry.messaging || []),
+        ...(entry.standby || []),
+      ];
+
+      /* ----- 1) Messenger messages & Echoes ----- */
+      for (const event of allMessagingEvents) {
+        // Handle echo message (outgoing messages from Page: Meta Business Suite automation, Page Inbox, or Bot)
         if (event.message?.is_echo) {
-          const userPsid = event.recipient?.id;
+          // In echo events, recipient is typically the user PSID, but verify against pageId
+          let userPsid = event.recipient?.id;
+          if (userPsid === pageId) {
+            userPsid = event.sender?.id;
+          }
           const text = event.message?.text;
+
           if (userPsid && text) {
+            // Check if this echo is from our own bot reply or admin manual message
+            if (isOurOutgoingMessage(userPsid, text, event.message.metadata)) {
+              console.log(`[Echo Filter] Ignored echo of our own bot/admin message for user: ${userPsid}`);
+              continue;
+            }
+
+            // Otherwise, it's a genuine outgoing message from Meta Business Suite automation or Page Inbox!
             await handleEchoMessage({
               platform: "facebook",
               externalId: userPsid,
@@ -88,9 +111,13 @@ router.post("/webhook", async (req, res) => {
           continue;
         }
 
+        // Standard incoming message from user
         if (!event.message?.text) continue;
 
-        const psid = event.sender?.id;
+        let psid = event.sender?.id;
+        if (psid === pageId) {
+          psid = event.recipient?.id;
+        }
         const text = event.message.text;
         if (!psid || !text) continue;
 
@@ -134,28 +161,33 @@ async function handleEchoMessage({ platform, externalId, text, appId, metadata }
     const cleanText = (text || "").trim();
 
     if (!session) {
+      // Create session if it doesn't exist yet
       session = await Session.create({
         platform,
         externalId,
         sessionId: `${platform}:${externalId}`,
-        displayName: cleanText,
-        nameCaptured: true,
+        displayName: isValidPersonName(cleanText) ? cleanText : "",
+        nameCaptured: isValidPersonName(cleanText),
         firstMessageHandled: true,
         userMessageCount: 1,
       });
-      console.log(`[Meta Automation Name Capture] Created new user with name: "${cleanText}" (PSID: ${externalId})`);
+      console.log(`[Meta Automation] Created new session for PSID: ${externalId}`);
     } else {
-      // If displayName is not set yet or name was not captured, save this echo message as the user's name
-      if (!session.nameCaptured || !session.displayName) {
-        session.displayName = cleanText;
-        session.nameCaptured = true;
-        console.log(`[Meta Automation Name Capture] Saved user name: "${cleanText}" for session: ${session.sessionId}`);
+      // If the incoming text is a valid human name, update displayName
+      if (isValidPersonName(cleanText)) {
+        if (!session.displayName || !session.nameCaptured || !isValidPersonName(session.displayName)) {
+          session.displayName = cleanText;
+          session.nameCaptured = true;
+          console.log(`[Meta Automation] Captured valid user name: "${cleanText}" for session: ${session.sessionId}`);
+        }
+      } else {
+        console.log(`[Meta Automation] Echo received: "${cleanText}" (not a personal name, stored as automated reply)`);
       }
       session.lastActive = new Date();
       await session.save();
     }
 
-    // Save the outgoing automated message into message history
+    // Save the automated response into message history so it appears in the Admin Panel Chathistory
     const echoMsg = await Message.create({
       sessionId: session.sessionId,
       role: "assistant",
@@ -163,7 +195,7 @@ async function handleEchoMessage({ platform, externalId, text, appId, metadata }
       source: "meta_automation",
     });
 
-    // Broadcast in real-time to admin dashboard
+    // Real-time broadcast to Admin Panel
     broadcast("session_update", {
       sessionId: session.sessionId,
       platform: session.platform,
@@ -207,6 +239,20 @@ async function handleIncoming({ platform, externalId, text, source, replyFn }) {
     });
   }
 
+  // If user name is missing or corrupted, try to fetch real name from Facebook Graph API
+  if (platform === "facebook" && !externalId.startsWith("comment:") && (!session.displayName || !isValidPersonName(session.displayName))) {
+    try {
+      const fbName = await getUserName(externalId);
+      if (fbName && isValidPersonName(fbName)) {
+        session.displayName = fbName;
+        session.nameCaptured = true;
+        console.log(`[Facebook Graph API] Retrieved real user name: "${fbName}" for PSID: ${externalId}`);
+      }
+    } catch (nameErr) {
+      console.warn("Could not fetch user name from Graph API:", nameErr.message);
+    }
+  }
+
   const userMsg = await Message.create({
     sessionId: session.sessionId,
     role: "user",
@@ -247,15 +293,16 @@ async function handleIncoming({ platform, externalId, text, source, replyFn }) {
     lastActive: session.lastActive,
     userMessageCount: session.userMessageCount,
     firstMessageHandled: session.firstMessageHandled,
+    nameCaptured: session.nameCaptured,
   });
 
   // User Requirement:
   // "পেজে প্রথমবার কেউ মেসেজ দিলো তখন এআই রিপ্লাই দিবে না,
-  // ইউজার প্রথমবার মেসেজ দেওয়ার পর পেজ থেকে অটোমেটিক একটা মেসেজ যাবে (মেটা বিজনেস এর অটোমেশনের মাধ্যমে আমি সেট করবো যেন কেউ প্রথবার পেজে মেসেজ দিলে ঐ অটোমেশন ঐ ইউজারের ফুল নাম মেসেজ হিসেবে পাঠাবে)
+  // ইউজার প্রথমবার মেসেজ দেওয়ার পর পেজ থেকে অটোমেটিক একটা মেসেজ যাবে (মেটা বিজনেস এর অটোমেশনের মাধ্যমে)
   // প্রথম মেসেজের পর ইউজার কোনো মেসেজ দিলে এআই সেই মেসেজের রিপ্লাই দিবে।"
   if (isFirstMessage && isFirstMessageAiDisabled() && platform === "facebook") {
     console.log(
-      `[First Message] User ${externalId} sent first message. Pausing AI reply to let Meta Automation send user's name.`
+      `[First Message] User ${externalId} sent first message. Pausing AI reply to let Meta Automation send message.`
     );
     return;
   }

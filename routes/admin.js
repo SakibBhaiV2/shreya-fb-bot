@@ -11,7 +11,12 @@ const {
   resetSystemPrompt,
   DEFAULT_SYSTEM_PROMPT,
 } = require("../services/groq");
-const { sendMessengerText } = require("../services/facebook");
+const {
+  sendMessengerText,
+  sendMessengerTextAdmin,
+  getUserName,
+  isValidPersonName,
+} = require("../services/facebook");
 const { getConfig, getSafeConfig, updateConfig } = require("../services/config");
 const { broadcast, registerSseClient } = require("../services/realtime");
 
@@ -149,6 +154,20 @@ router.get("/users", requireAdminAuth, async (req, res) => {
 
     const enhanced = await Promise.all(
       sessions.map(async (s) => {
+        // Auto-heal corrupted names (e.g. accidental bot replies as names)
+        if (s.platform === "facebook" && s.displayName && !isValidPersonName(s.displayName)) {
+          try {
+            const real = await getUserName(s.externalId);
+            s.displayName = (real && isValidPersonName(real)) ? real : "";
+            s.nameCaptured = Boolean(real && isValidPersonName(real));
+            await Session.updateOne({ _id: s._id }, { displayName: s.displayName, nameCaptured: s.nameCaptured });
+          } catch {
+            s.displayName = "";
+            s.nameCaptured = false;
+            await Session.updateOne({ _id: s._id }, { displayName: "", nameCaptured: false });
+          }
+        }
+
         const lastMsgs = await Message.find({ sessionId: s.sessionId })
           .sort({ createdAt: -1 })
           .limit(1)
@@ -193,6 +212,20 @@ router.get("/users/:sessionId", requireAdminAuth, async (req, res) => {
     const session = await Session.findOne({ sessionId });
     if (!session) {
       return res.status(404).json({ error: "ইউজার পাওয়া যায়নি" });
+    }
+
+    // Auto-heal corrupted names
+    if (session.platform === "facebook" && session.displayName && !isValidPersonName(session.displayName)) {
+      try {
+        const real = await getUserName(session.externalId);
+        session.displayName = (real && isValidPersonName(real)) ? real : "";
+        session.nameCaptured = Boolean(real && isValidPersonName(real));
+        await session.save();
+      } catch {
+        session.displayName = "";
+        session.nameCaptured = false;
+        await session.save();
+      }
     }
 
     const messages = await Message.find({ sessionId })
@@ -245,7 +278,7 @@ router.post("/users/:sessionId/message", requireAdminAuth, async (req, res) => {
     // If platform is facebook, send to Messenger
     if (session.platform === "facebook" && !session.externalId.startsWith("comment:")) {
       try {
-        await sendMessengerText(session.externalId, trimmedMsg);
+        await sendMessengerTextAdmin(session.externalId, trimmedMsg);
       } catch (fbErr) {
         console.error("Failed to send Facebook Messenger reply:", fbErr?.response?.data || fbErr.message);
       }

@@ -1179,6 +1179,11 @@
 
       if (type === 'session_update') {
         fetchUsers();
+        if (payload && payload.sessionId && state.activeSessionId === payload.sessionId && payload.displayName) {
+          if (state.activeSession) state.activeSession.displayName = payload.displayName;
+          const convName = document.getElementById('conv-name');
+          if (convName) convName.textContent = payload.displayName;
+        }
       }
 
       if (type === 'ai_toggle') {
