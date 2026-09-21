@@ -54,6 +54,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Facebook webhook (GET verify + POST events)
+app.use("/webhook", webhookRouter);
 app.use("/", webhookRouter);
 
 // লোকাল টেস্ট API

@@ -58,6 +58,7 @@ class InMemorySessionQuery {
 
 class InMemorySession {
   constructor(data) {
+    this._id = data._id || data.sessionId;
     this.platform = data.platform;
     this.externalId = data.externalId;
     this.sessionId = data.sessionId;
@@ -114,6 +115,11 @@ const Session = {
     if (mongoose.connection.readyState === 1) {
       return await MongooseSession.findOne(query);
     }
+    if (query._id) {
+      for (const s of memorySessions.values()) {
+        if (s._id === query._id) return s;
+      }
+    }
     if (query.sessionId) {
       return memorySessions.get(query.sessionId) || null;
     }
@@ -125,6 +131,20 @@ const Session = {
       }
     }
     return null;
+  },
+
+  async updateOne(query, update) {
+    if (mongoose.connection.readyState === 1) {
+      return await MongooseSession.updateOne(query, update);
+    }
+    const session = await Session.findOne(query);
+    if (session && update) {
+      const setFields = update.$set || update;
+      Object.assign(session, setFields);
+      session.updatedAt = new Date();
+      memorySessions.set(session.sessionId, session);
+    }
+    return { acknowledged: true, modifiedCount: session ? 1 : 0 };
   },
 
   schema: sessionSchema,

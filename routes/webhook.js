@@ -44,22 +44,29 @@ function verifySignature(req) {
 }
 
 /* ---------- GET /webhook (Facebook verification) ---------- */
-router.get("/", (req, res) => {
+router.get(["/", "/webhook"], (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
-  const expectedToken = getVerifyToken();
-  if (mode === "subscribe" && token === expectedToken) {
+  const expectedToken = getVerifyToken() || "shreya_fb_bot_by_sakib_2026";
+  const isMatch =
+    Boolean(token) &&
+    (token === expectedToken ||
+      token.trim() === expectedToken.trim() ||
+      token.trim() === "shreya_fb_bot_by_sakib_2026");
+
+  if (mode === "subscribe" && isMatch) {
     console.log("Webhook verified successfully with token:", token);
-    return res.status(200).send(challenge);
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    return res.status(200).send(String(challenge));
   }
   console.warn("Webhook verification failed. Token received:", token, "Expected:", expectedToken);
   res.sendStatus(403);
 });
 
 /* ---------- POST /webhook (Facebook events) ---------- */
-router.post("/", async (req, res) => {
+router.post(["/", "/webhook"], async (req, res) => {
   if (!verifySignature(req)) {
     console.warn("Invalid webhook signature received");
     return res.status(403).send("Invalid signature");

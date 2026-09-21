@@ -53,6 +53,7 @@ const Message = {
       return await MongooseMessage.create(data);
     }
     const item = {
+      _id: "msg_" + Math.random().toString(36).substring(2, 9),
       sessionId: data.sessionId,
       role: data.role,
       content: data.content,

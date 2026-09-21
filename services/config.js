@@ -9,7 +9,7 @@ const CONFIG_STORE_PATH = path.join(__dirname, "..", "config_store.json");
 const settings = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || "Sakib@7890",
   FB_PAGE_ACCESS_TOKEN: process.env.FB_PAGE_ACCESS_TOKEN || "",
-  FB_VERIFY_TOKEN: process.env.FB_VERIFY_TOKEN || "",
+  FB_VERIFY_TOKEN: process.env.FB_VERIFY_TOKEN || "shreya_fb_bot_by_sakib_2026",
   FB_APP_SECRET: process.env.FB_APP_SECRET || "",
   GROQ_API_KEY: process.env.GROQ_API_KEY || "",
   MODEL: process.env.MODEL || "openai/gpt-oss-120b",
