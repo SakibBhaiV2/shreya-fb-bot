@@ -167,6 +167,115 @@ function isValidPersonName(str) {
   return true;
 }
 
+/** ফেসবুক পেজকে অ্যাপের ওয়েববুকের সাথে সাবস্ক্রাইব করানো */
+async function subscribePageToWebhooks(customToken) {
+  const token = customToken || getPageToken();
+  if (!token) return { success: false, message: "টোকেন পাওয়া যায়নি" };
+
+  try {
+    const res = await axios.post(
+      `${GRAPH}/me/subscribed_apps`,
+      null,
+      {
+        params: {
+          subscribed_fields: "messages,messaging_postbacks,message_echoes,standby",
+          access_token: token,
+        },
+        timeout: 10000,
+      }
+    );
+    console.log("Successfully subscribed Facebook Page to webhooks:", res.data);
+    return { success: true, data: res.data };
+  } catch (err) {
+    const errMsg = err.response?.data?.error?.message || err.message;
+    console.warn("Could not auto-subscribe page to webhooks:", errMsg);
+    return { success: false, error: errMsg };
+  }
+}
+
+/** ফেসবুক টোকেন ভেরিফিকেশন ও ডায়াগনস্টিক */
+async function verifyFacebookToken(customToken) {
+  const token = customToken || getPageToken();
+  if (!token) {
+    return { ok: false, message: "FB_PAGE_ACCESS_TOKEN খালি রয়েছে! দয়া করে টোকেন দিন।" };
+  }
+
+  let pageId = null;
+  let pageName = null;
+  let subscribed = false;
+  let lastError = null;
+
+  // 1. Try standard /me with id,name
+  try {
+    const res = await axios.get(`${GRAPH}/me`, {
+      params: { fields: "id,name", access_token: token },
+      timeout: 8000,
+    });
+    pageId = res.data?.id;
+    pageName = res.data?.name;
+  } catch (err) {
+    lastError = err.response?.data?.error || { message: err.message };
+    console.log("Facebook /me?fields=id,name notice:", lastError.message);
+
+    // 2. Fallback: In Graph API v19+, if pages_read_engagement is missing, fields=name fails with Error 100.
+    // Try querying just id
+    try {
+      const resId = await axios.get(`${GRAPH}/me`, {
+        params: { fields: "id", access_token: token },
+        timeout: 8000,
+      });
+      pageId = resId.data?.id;
+      lastError = null;
+    } catch (errId) {
+      // 3. Fallback: Test with subscribed_apps check
+      try {
+        const subCheck = await axios.get(`${GRAPH}/me/subscribed_apps`, {
+          params: { access_token: token },
+          timeout: 8000,
+        });
+        if (subCheck.data) {
+          lastError = null;
+        }
+      } catch (errSub) {
+        lastError = errSub.response?.data?.error || lastError;
+      }
+    }
+  }
+
+  // 4. Try auto-subscribing to webhooks
+  const subResult = await subscribePageToWebhooks(token);
+  if (subResult.success) {
+    subscribed = true;
+    lastError = null; // Subscription succeeded, so token IS a valid page token!
+  }
+
+  if (pageId || subscribed || !lastError) {
+    const namePart = pageName ? `পেজের নাম: "${pageName}"` : (pageId ? `পেজ আইডি: ${pageId}` : "পেজ ভ্যালিড");
+    const subPart = subscribed ? " এবং ওয়েববুক সফলভাবে পেজের সাথে যুক্ত (সাবস্ক্রাইব) হয়েছে!" : "";
+    return {
+      ok: true,
+      message: `ফেসবুক পেজ কানেকশন সফল! ${namePart}${subPart}`,
+      data: { pageId, pageName, subscribed },
+    };
+  }
+
+  // Detailed troubleshooting guidance
+  const rawMsg = lastError?.message || "Unknown error";
+  let explanation = rawMsg;
+
+  if (rawMsg.includes("pages_read_engagement") || rawMsg.includes("Object does not exist") || lastError?.code === 100) {
+    explanation = "টোকেনটি সম্ভবত 'User Token' অথবা পারমিশন মিসিং। Graph API Explorer-এ 'User or Page' ড্রপডাউনে ইউজার টোকেন না দিয়ে আপনার ফেসবুক পেজ সিলেক্ট করুন এবং 'pages_messaging' ও 'pages_read_engagement' পারমিশন যুক্ত করে Page Access Token জেনারেট করুন।";
+  } else if (lastError?.code === 190) {
+    explanation = "ফেসবুক টোকেনের মেয়াদ শেষ হয়ে গেছে বা ইনভ্যালিড। নতুন একটি Page Access Token জেনারেট করুন।";
+  }
+
+  return {
+    ok: false,
+    message: `ফেসবুক টোকেন সমস্যা: ${explanation}`,
+    rawError: rawMsg,
+  };
+}
+
 module.exports = {
   sendMessengerText,
   sendMessengerTextAdmin,
@@ -176,4 +285,6 @@ module.exports = {
   isOurOutgoingMessage,
   recordOutgoingMessage,
   isValidPersonName,
+  subscribePageToWebhooks,
+  verifyFacebookToken,
 };

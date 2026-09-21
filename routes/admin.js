@@ -16,6 +16,8 @@ const {
   sendMessengerTextAdmin,
   getUserName,
   isValidPersonName,
+  verifyFacebookToken,
+  subscribePageToWebhooks,
 } = require("../services/facebook");
 const { getConfig, getSafeConfig, updateConfig } = require("../services/config");
 const { broadcast, registerSseClient } = require("../services/realtime");
@@ -437,6 +439,12 @@ router.post("/settings/system", requireAdminAuth, async (req, res) => {
   try {
     const updated = await updateConfig(req.body);
     broadcast("settings_update", { config: updated });
+
+    // Auto-subscribe page to webhooks if token exists
+    if (updated.FB_PAGE_ACCESS_TOKEN) {
+      subscribePageToWebhooks(updated.FB_PAGE_ACCESS_TOKEN).catch(() => {});
+    }
+
     res.json({
       success: true,
       config: updated,
@@ -454,25 +462,12 @@ router.post("/settings/test-connection", requireAdminAuth, async (req, res) => {
   const cfg = getConfig();
 
   if (type === "facebook") {
-    const token = cfg.FB_PAGE_ACCESS_TOKEN;
-    if (!token) {
-      return res.status(400).json({ ok: false, message: "FB_PAGE_ACCESS_TOKEN খালি রয়েছে!" });
-    }
-    try {
-      const resp = await axios.get("https://graph.facebook.com/v21.0/me", {
-        params: { fields: "id,name", access_token: token },
-        timeout: 8000,
-      });
-      return res.json({
-        ok: true,
-        message: `ফেসবুক পেজ কানেকশন সফল! পেজের নাম: "${resp.data?.name || resp.data?.id}"`,
-        data: resp.data,
-      });
-    } catch (fbErr) {
-      return res.status(400).json({
-        ok: false,
-        message: "ফেসবুক টোকেন ইনভ্যালিড অথবা মেয়াদ শেষ: " + (fbErr.response?.data?.error?.message || fbErr.message),
-      });
+    const candidateToken = (req.body.token && req.body.token.trim()) || cfg.FB_PAGE_ACCESS_TOKEN;
+    const result = await verifyFacebookToken(candidateToken);
+    if (result.ok) {
+      return res.json(result);
+    } else {
+      return res.status(400).json(result);
     }
   }
 
